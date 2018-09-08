@@ -28,3 +28,15 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  name = "github.com/rylio/ytdl"
+  version = "0.5.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/xfrr/goffmpeg"
+
+[[constraint]]
+  name = "github.com/Sirupsen/logrus"
+  version = "1.0.6"
