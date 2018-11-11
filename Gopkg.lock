@@ -10,14 +10,6 @@
   version = "v1.4.1"
 
 [[projects]]
-  digest = "1:d867dfa6751c8d7a435821ad3b736310c2ed68945d05b50fb9d23aee0540c8cc"
-  name = "github.com/Sirupsen/logrus"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
-  version = "v1.0.6"
-
-[[projects]]
   digest = "1:66b3310cf22cdc96c35ef84ede4f7b9b370971c4025f394c89a2638729653b11"
   name = "github.com/andybalholm/cascadia"
   packages = ["."]
@@ -26,12 +18,28 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:e9c82a18b2a65779fb632431f39662e5ae263020d7cc19b4951a523621876a84"
+  digest = "1:0a69a1c0db3591fcefb47f115b224592c8dfa4368b7ba9fae509d5e16cdc95c8"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
+  version = "v1.0.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d10708438642755d6fd37c570b9d01cb5263e7e4248f813b079b031cdd7cf618"
   name = "github.com/rylio/ytdl"
   packages = ["."]
   pruneopts = "UT"
-  revision = "bd30f781270fa4d6df59e2a49948cd157030a2c6"
-  version = "v0.5.1"
+  revision = "0227c2bacb82a434f2332d7d8c64093615c08a40"
+
+[[projects]]
+  digest = "1:69b1cc331fca23d702bd72f860c6a647afd0aa9fcbc1d0659b1365e26546dd70"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "bcd833dfe83d3cebad139e4a29ed79cb2318bf95"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -80,8 +88,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/Sirupsen/logrus",
     "github.com/rylio/ytdl",
+    "github.com/sirupsen/logrus",
     "github.com/xfrr/goffmpeg/transcoder",
   ]
   solver-name = "gps-cdcl"
