@@ -1,6 +1,7 @@
 package sources
 
 import (
+	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
 	"io/ioutil"
 	"os"
 	"path"
@@ -41,7 +42,7 @@ func GetVideo(query string) (string, error) {
 	logrus.Debug("Wrote media to temporary file")
 
 	trans := new(transcoder.Transcoder)
-	dataDir := viper.GetString("DataDir")
+	dataDir := viper.GetString(constants.DATA)
 	filePath := path.Join(dataDir, info.ID+".ogg")
 	trans.Initialize(file.Name(), filePath)
 	trans.MediaFile().SetAudioCodec("libvorbis")

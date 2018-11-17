@@ -10,26 +10,27 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gitlab.com/ttpcodes/prismriver/internal/app/sources"
+	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
 )
 
 func main() {
 	// Set up configuration framework.
 	viper.SetEnvPrefix("PRISMRIVER_")
 
-	viper.SetDefault("DataDir", "/var/lib/prismriver")
-	viper.SetDefault("Verbosity", "info")
+	viper.SetDefault(constants.DATA, "/var/lib/prismriver")
+	viper.SetDefault(constants.VERBOSITY, "info")
 
-	viper.BindEnv("DataDir")
-	viper.BindEnv("Verbosity")
+	viper.BindEnv(constants.DATA)
+	viper.BindEnv(constants.VERBOSITY)
 
-	verbosity := viper.GetString("Verbosity")
+	verbosity := viper.GetString(constants.VERBOSITY)
 	level, err := logrus.ParseLevel(verbosity)
 	if err != nil {
 		logrus.Errorf("Error reading verbosity level in configuration")
 	}
 	logrus.SetLevel(level)
 
-	dataDir := viper.GetString("DataDir")
+	dataDir := viper.GetString(constants.DATA)
 	os.MkdirAll(dataDir, os.ModeDir)
 
 	playTest()
