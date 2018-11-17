@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
+	"gitlab.com/ttpcodes/prismriver/internal/app/server/routes/queue"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +15,8 @@ func CreateRouter() {
 	wait := time.Duration(15)
 
 	r := mux.NewRouter()
+	r.HandleFunc("/queue", queue.IndexHandler).Methods("GET")
+	r.HandleFunc("/queue", queue.StoreHandler).Methods("POST")
 
 	srv := &http.Server{
 		Addr: "0.0.0.0:80",

@@ -2,6 +2,7 @@ package sources
 
 import (
 	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
+	"gitlab.com/ttpcodes/prismriver/internal/app/types"
 	"io/ioutil"
 	"os"
 	"path"
@@ -11,6 +12,21 @@ import (
 	"github.com/spf13/viper"
 	"github.com/xfrr/goffmpeg/transcoder"
 )
+
+func GetInfo(query string) (types.Media, error) {
+	info, err := ytdl.GetVideoInfo(query)
+	if err != nil {
+		logrus.Error("Error retrieving video info:")
+		logrus.Error(err)
+		return types.Media{}, err
+	}
+	return types.Media{
+		ID: info.ID,
+		Length: int(info.Duration),
+		Title: info.Title,
+		URL: query,
+	}, nil
+}
 
 func GetVideo(query string) (string, error) {
 	file, err := ioutil.TempFile("", "ytdl-")
