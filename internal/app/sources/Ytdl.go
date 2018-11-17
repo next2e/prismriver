@@ -3,9 +3,11 @@ package sources
 import (
 	"io/ioutil"
 	"os"
+	"path"
 
 	"github.com/rylio/ytdl"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 	"github.com/xfrr/goffmpeg/transcoder"
 )
 
@@ -37,8 +39,11 @@ func GetVideo(query string) (string, error) {
 		return "", err
 	}
 	logrus.Debug("Wrote media to temporary file")
+
 	trans := new(transcoder.Transcoder)
-	trans.Initialize(file.Name(), info.ID+".ogg")
+	dataDir := viper.GetString("DataDir")
+	filePath := path.Join(dataDir, info.ID+".ogg")
+	trans.Initialize(file.Name(), filePath)
 	trans.MediaFile().SetAudioCodec("libvorbis")
 	trans.MediaFile().SetSkipVideo(true)
 	logrus.Debug("Instantiated ffmpeg transcoder")

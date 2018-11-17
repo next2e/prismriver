@@ -44,3 +44,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/faiface/beep"
+
+[[constraint]]
+  name = "github.com/spf13/viper"
+  version = "1.2.1"
