@@ -54,6 +54,22 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:c79fb010be38a59d657c48c6ba1d003a8aa651fa56b579d959d74573b7dff8e1"
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  version = "v1.1.1"
+
+[[projects]]
+  digest = "1:e73f5b0152105f18bc131fba127d9949305c8693f8a762588a82a48f61756f5f"
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
+  version = "v1.6.2"
+
+[[projects]]
   digest = "1:7dbca992a0baa4051dbca01d73ef7a790b8838f159ddbabace2657b81aeafc43"
   name = "github.com/hajimehoshi/oto"
   packages = ["."]
@@ -313,6 +329,7 @@
     "github.com/faiface/beep",
     "github.com/faiface/beep/speaker",
     "github.com/faiface/beep/vorbis",
+    "github.com/gorilla/mux",
     "github.com/rylio/ytdl",
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",
