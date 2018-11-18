@@ -6,6 +6,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/ttpcodes/prismriver/internal/app/server/routes/queue"
+	"gitlab.com/ttpcodes/prismriver/internal/app/server/ws/routes"
 	"net/http"
 	"os"
 	"os/signal"
@@ -20,6 +21,7 @@ func CreateRouter() {
 	r := mux.NewRouter()
 	r.HandleFunc("/queue", queue.IndexHandler).Methods("GET")
 	r.HandleFunc("/queue", queue.StoreHandler).Methods("POST")
+	r.HandleFunc("/ws/queue", routes.WebsocketQueueHandler)
 
 	statikFS, err := fs.New()
 	if err != nil {
