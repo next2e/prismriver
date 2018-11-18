@@ -1,0 +1,14 @@
+{
+  "name": "prismriver",
+  "version": "0.0.1",
+  "description": "A community music streaming application for Next2E.",
+  "main": "index.js",
+  "repository": "https://gitlab.com/ttpcodes/prismriver",
+  "author": "Michael William Le Nguyen <michael@mail.ttp.codes>",
+  "license": "MIT",
+  "devDependencies": {
+    "tslint": "^5.11.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.1.6"
+  }
+}
