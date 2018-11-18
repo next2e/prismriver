@@ -1,7 +1,9 @@
 package player
 
 import (
+	"encoding/json"
 	"github.com/sirupsen/logrus"
+	"gitlab.com/ttpcodes/prismriver/internal/app/server/ws/routes"
 	"gitlab.com/ttpcodes/prismriver/internal/app/types"
 	"sync"
 )
@@ -29,6 +31,8 @@ func (q *Queue) Add(media types.Media) {
 	if player.State == STOPPED {
 		go player.Play(media)
 	}
+	go q.sendQueueUpdate()
+	logrus.Info("Added " + media.Title + " to queue.")
 }
 
 func (q *Queue) Advance() {
@@ -37,8 +41,24 @@ func (q *Queue) Advance() {
 		player := GetPlayer()
 		go player.Play(q.items[0])
 	}
+	go q.sendQueueUpdate()
 }
 
 func (q Queue) GetMedia() []types.Media {
 	return q.items
+}
+
+func (q Queue) sendQueueUpdate() {
+	logrus.Debug("Called sendQueueUpdate.")
+	titles := make([]string, 0)
+	for _, item := range q.items {
+		titles = append(titles, item.Title)
+	}
+	message, err := json.Marshal(titles)
+	if err != nil {
+		logrus.Error("Error generating JSON response:")
+		logrus.Error(err)
+	}
+	hub := routes.GetQueueHub()
+	hub.Broadcast <- message
 }
