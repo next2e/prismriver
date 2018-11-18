@@ -10,7 +10,8 @@ import (
 
 func main() {
 	// Set up configuration framework.
-	viper.SetEnvPrefix("PRISMRIVER_")
+	viper.SetEnvPrefix("PRISMRIVER")
+	viper.AutomaticEnv()
 
 	viper.SetDefault(constants.DATA, "/var/lib/prismriver")
 	viper.SetDefault(constants.VERBOSITY, "info")
