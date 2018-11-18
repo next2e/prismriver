@@ -112,16 +112,29 @@ $(() => {
     }
   })
 
-  setInterval(() => {
-    $.getJSON('/queue', (q) => {
-      let things = ''
-      $('#playing').html('<p>' + q[0] + '</p>')
-      for (let a = 1; a < q.length; a++) {
-        things += '<li><span>'
-        things += '<button onclick="delete_song(' + a + ')" class="delete"> Delete </button>'
-        things += q[a] + '</span></li>'
+  const socket = new WebSocket('ws://' + window.location.hostname + '/ws/queue')
+
+  socket.addEventListener('close', () => {
+    alert('WebSocket connection closed. Refresh to continue receiving queue updates!')
+  })
+
+  socket.addEventListener('error', () => {
+    alert('Error in the WebSocket connection. If there are issues with the queue updating, refresh!')
+  })
+
+  socket.addEventListener('message', (event) => {
+    const queue = JSON.parse(event.data)
+    let things = ''
+    $('#playing').html('<p>' + queue[0] + '</p>')
+    const upcoming = queue.slice(1)
+    for (const index in upcoming) {
+      if (!upcoming.hasOwnProperty(index)) {
+        continue
       }
-      $('#queue').html(things)
-    })
-  }, 1000)
+      things += '<li><span>'
+      things += '<button onclick="delete_song(' + index + ')" class="delete"> Delete </button>'
+      things += upcoming[index] + '</span></li>'
+    }
+    $('#queue').html(things)
+  })
 })
