@@ -58,3 +58,13 @@ func GetMedia(id string, kind string) (Media, error) {
 	}
 	return Media{}, errors.New("Media not found in DB.")
 }
+
+func GetRandomMedia(limit int) []Media {
+	db, err := GetDatabase()
+	if err != nil {
+		logrus.Fatal("Error loading database:", err)
+	}
+	var media []Media
+	db.Order("random()").Limit(limit).Find(&media)
+	return media
+}

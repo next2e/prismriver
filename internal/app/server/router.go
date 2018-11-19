@@ -20,6 +20,7 @@ func CreateRouter() {
 	wait := time.Duration(15)
 
 	r := mux.NewRouter()
+	r.HandleFunc("/media/random", media.RandomHandler).Methods("GET")
 	r.HandleFunc("/media/search", media.SearchHandler).Methods("GET")
 	r.HandleFunc("/queue", queue.IndexHandler).Methods("GET")
 	r.HandleFunc("/queue", queue.StoreHandler).Methods("POST")

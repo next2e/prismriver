@@ -33,7 +33,7 @@ function submit_search (): void {
   if ((query as string).length) {
     $.getJSON('/media/search', { query }, display_results)
   } else {
-    $.getJSON('/shuffle', display_results)
+    $.getJSON('/media/random', { limit: 20 }, display_results)
   }
 }
 
@@ -60,7 +60,7 @@ function display_results (songs: string[]): void {
 }
 
 $(() => {
-  $.getJSON('/shuffle', display_results)
+  $.getJSON('/media/random', { limit: 20 }, display_results)
   $('#add-song').on('click', submit_video)
   $('#submit-search').on('click', submit_search)
   $('#quietButton').on('click', () => {
@@ -70,7 +70,12 @@ $(() => {
   $('#random').on('click', () => {
     $('#random').blur()
     show_msg('Adding a random song')
-    $.get('/random')
+    $.getJSON('/media/random', { limit: 1 }, (data) => {
+      $.post('/queue', {
+        id: data[0].ID,
+        type: data[0].Type
+      })
+    })
   })
   $('#volup').on('click', () => {
     $('#volup').blur()
@@ -86,7 +91,7 @@ $(() => {
   })
   $('#shuffle').on('click', () => {
     $('#shuffle').blur()
-    $.getJSON('/shuffle', display_results)
+    $.getJSON('/media/random', { limit: 20 }, display_results)
   })
   $('#toggle-search').on('click', () => {
     if ($('#search-container:visible').length) {
