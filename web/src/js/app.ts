@@ -21,8 +21,8 @@ function decode_str (s: string): string {
 }
 
 function submit_video (): void {
-  const url = $('url')
-  $.post('/submit', { video: url.val() })
+  const url = $('#url')
+  $.post('/queue', { url: url.val() })
   url.val('')
   $('#linkButton').blur()
   show_msg('Submitted! Now downloading song...')
