@@ -48,6 +48,11 @@ func (q Queue) GetMedia() []db.Media {
 	return q.items
 }
 
+func (q *Queue) Remove(index int) {
+	q.items = append(q.items[:index], q.items[index + 1:]...)
+	go q.sendQueueUpdate()
+}
+
 func (q Queue) sendQueueUpdate() {
 	logrus.Debug("Called sendQueueUpdate.")
 	titles := make([]string, 0)

@@ -24,6 +24,7 @@ func CreateRouter() {
 	r.HandleFunc("/media/search", media.SearchHandler).Methods("GET")
 	r.HandleFunc("/queue", queue.IndexHandler).Methods("GET")
 	r.HandleFunc("/queue", queue.StoreHandler).Methods("POST")
+	r.HandleFunc("/queue/{id}", queue.DeleteHandler).Methods("DELETE")
 	r.HandleFunc("/ws/queue", routes.WebsocketQueueHandler)
 
 	statikFS, err := fs.New()

@@ -25,6 +25,7 @@ const (
 )
 
 type Player struct {
+	control *beep.Ctrl
 	State int
 }
 
@@ -58,9 +59,12 @@ func (p *Player) Play(media db.Media) error {
 		return err
 	}
 	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
+	p.control = &beep.Ctrl{
+		Streamer: stream,
+	}
 
 	done := make(chan struct{})
-	speaker.Play(beep.Seq(stream, beep.Callback(func() {
+	speaker.Play(beep.Seq(p.control, beep.Callback(func() {
 		close(done)
 	})))
 	playerInstance.State = PLAYING
@@ -69,4 +73,8 @@ func (p *Player) Play(media db.Media) error {
 	queue := GetQueue()
 	queue.Advance()
 	return nil
+}
+
+func (p *Player) Skip() {
+	p.control.Streamer = nil
 }

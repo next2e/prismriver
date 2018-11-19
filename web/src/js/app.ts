@@ -37,8 +37,11 @@ function submit_search (): void {
   }
 }
 
-function delete_song (songNumber: number): void {
-  $.post('/delete', { song: songNumber })
+(window as any).delete_song = (songNumber: number): void => {
+  $.ajax({
+    type: 'DELETE',
+    url: '/queue/' + songNumber
+  })
 }
 
 (window as any).select_song = (song: string, type: string, title: string): void => {
@@ -87,7 +90,10 @@ $(() => {
   })
   $('#skipButton').on('click', () => {
     $('#skipButton').blur()
-    $.get('/skip')
+    $.ajax({
+      type: 'DELETE',
+      url: '/queue/0'
+    })
   })
   $('#shuffle').on('click', () => {
     $('#shuffle').blur()
@@ -137,7 +143,7 @@ $(() => {
         continue
       }
       things += '<li><span>'
-      things += '<button onclick="delete_song(' + index + ')" class="delete"> Delete </button>'
+      things += '<button onclick="delete_song(' + (parseInt(index, 10) + 1) + ')" class="delete"> Delete </button>'
       things += upcoming[index] + '</span></li>'
     }
     $('#queue').html(things)
