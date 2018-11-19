@@ -31,7 +31,7 @@ function submit_video (): void {
 function submit_search (): void {
   const query = $('#query').val()
   if ((query as string).length) {
-    $.getJSON('/search', { query }, display_results)
+    $.getJSON('/media/search', { query }, display_results)
   } else {
     $.getJSON('/shuffle', display_results)
   }
@@ -41,19 +41,19 @@ function delete_song (songNumber: number): void {
   $.post('/delete', { song: songNumber })
 }
 
-function select_song (song: string): void {
-  song = decode_str(song)
-  const title = song.substring(0, song.lastIndexOf('.'))
+(window as any).select_song = (song: string, type: string, title: string): void => {
+  title = decode_str(title)
   show_msg('Adding ' + title)
-  $.post('/playsong', { song })
+  $.post('/queue', { id: song, type })
 }
 
 function display_results (songs: string[]): void {
   let listing = ''
   songs.forEach((song) => {
-    listing += '<li></span><button onclick="select_song(\'' + encode_str(song) + '\')" '
+    listing += '<li></span><button onclick="select_song(\'' + (song as any).ID + '\', \'' + (song as any).Type +
+        '\', \'' + encode_str((song as any).Title) + '\')" '
     listing += 'class="select-song">Add</button> '
-    listing += song.substring(0, song.lastIndexOf('.'))
+    listing += (song as any).Title
     listing += '</span></li>'
   })
   $('#search-results').html(listing)

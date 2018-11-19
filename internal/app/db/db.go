@@ -36,6 +36,16 @@ func AddMedia(media Media) error {
 	return nil
 }
 
+func FindMedia(query string, limit int) []Media {
+	db, err := GetDatabase()
+	if err != nil {
+		logrus.Fatal("Error loading database:", err)
+	}
+	var media []Media
+	db.Limit(limit).Where("title ILIKE ?", "%" + query + "%").Find(&media)
+	return media
+}
+
 func GetMedia(id string, kind string) (Media, error) {
 	db, err := GetDatabase()
 	if err != nil {
