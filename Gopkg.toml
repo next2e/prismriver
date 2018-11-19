@@ -60,3 +60,7 @@
 [[constraint]]
   name = "github.com/gorilla/websocket"
   version = "1.4.0"
+
+[[constraint]]
+  name = "github.com/jinzhu/gorm"
+  version = "1.9.1"

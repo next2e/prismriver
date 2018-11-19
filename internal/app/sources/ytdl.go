@@ -2,7 +2,7 @@ package sources
 
 import (
 	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
-	"gitlab.com/ttpcodes/prismriver/internal/app/types"
+	"gitlab.com/ttpcodes/prismriver/internal/app/db"
 	"io/ioutil"
 	"os"
 	"path"
@@ -13,18 +13,18 @@ import (
 	"github.com/xfrr/goffmpeg/transcoder"
 )
 
-func GetInfo(query string) (types.Media, error) {
+func GetInfo(query string) (db.Media, error) {
 	info, err := ytdl.GetVideoInfo(query)
 	if err != nil {
 		logrus.Error("Error retrieving video info:")
 		logrus.Error(err)
-		return types.Media{}, err
+		return db.Media{}, err
 	}
-	return types.Media{
+	return db.Media{
 		ID: info.ID,
-		Length: int(info.Duration),
+		Length: uint64(info.Duration),
 		Title: info.Title,
-		URL: query,
+		Type: "youtube",
 	}, nil
 }
 
@@ -37,7 +37,7 @@ func GetVideo(query string) (string, error) {
 	}
 	logrus.Debug("Opened TempFile for video download")
 
-	info, err := ytdl.GetVideoInfo(query)
+	info, err := ytdl.GetVideoInfoFromID(query)
 	if err != nil {
 		logrus.Error("Error when loading video info")
 		logrus.Error(err)

@@ -7,8 +7,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
+	"gitlab.com/ttpcodes/prismriver/internal/app/db"
 	"gitlab.com/ttpcodes/prismriver/internal/app/sources"
-	"gitlab.com/ttpcodes/prismriver/internal/app/types"
 	"os"
 	"path"
 	"sync"
@@ -37,12 +37,12 @@ func GetPlayer() *Player {
 	return playerInstance
 }
 
-func (p *Player) Play(media types.Media) error {
+func (p *Player) Play(media db.Media) error {
 	dataDir := viper.GetString(constants.DATA)
 	filePath := path.Join(dataDir, media.ID+".ogg")
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		sources.GetVideo(media.URL)
+		sources.GetVideo(media.ID)
 	}
 
 	file, err := os.Open(filePath)

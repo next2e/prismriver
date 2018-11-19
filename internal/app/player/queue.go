@@ -3,8 +3,8 @@ package player
 import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
+	"gitlab.com/ttpcodes/prismriver/internal/app/db"
 	"gitlab.com/ttpcodes/prismriver/internal/app/server/ws/routes"
-	"gitlab.com/ttpcodes/prismriver/internal/app/types"
 	"sync"
 )
 
@@ -12,20 +12,20 @@ var queueInstance *Queue
 var queueOnce sync.Once
 
 type Queue struct {
-	items []types.Media
+	items []db.Media
 }
 
 func GetQueue() *Queue {
 	queueOnce.Do(func() {
 		logrus.Info("Created queue instance.")
 		queueInstance = &Queue{
-			items: make([]types.Media, 0),
+			items: make([]db.Media, 0),
 		}
 	})
 	return queueInstance
 }
 
-func (q *Queue) Add(media types.Media) {
+func (q *Queue) Add(media db.Media) {
 	q.items = append(q.items, media)
 	player := GetPlayer()
 	if player.State == STOPPED {
@@ -44,7 +44,7 @@ func (q *Queue) Advance() {
 	go q.sendQueueUpdate()
 }
 
-func (q Queue) GetMedia() []types.Media {
+func (q Queue) GetMedia() []db.Media {
 	return q.items
 }
 
