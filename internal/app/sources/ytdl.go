@@ -44,7 +44,8 @@ func GetVideo(query string) (string, error) {
 		return "", err
 	}
 	logrus.Debug("Retrieved video info")
-	if err := info.Download(info.Formats.Best(ytdl.FormatAudioBitrateKey).Worst(ytdl.FormatResolutionKey)[0], file); err != nil {
+	// info.Formats.Best(ytdl.FormatAudioBitrateKey).Worst(ytdl.FormatResolutionKey)[0]
+	if err := info.Download(info.Formats[0], file); err != nil {
 		logrus.Error("Error when downloading media")
 		logrus.Error(err)
 		return "", err
@@ -59,9 +60,9 @@ func GetVideo(query string) (string, error) {
 
 	trans := new(transcoder.Transcoder)
 	dataDir := viper.GetString(constants.DATA)
-	filePath := path.Join(dataDir, info.ID+".ogg")
+	filePath := path.Join(dataDir, info.ID+".opus")
 	trans.Initialize(file.Name(), filePath)
-	trans.MediaFile().SetAudioCodec("libvorbis")
+	trans.MediaFile().SetAudioCodec("libopus")
 	trans.MediaFile().SetSkipVideo(true)
 	logrus.Debug("Instantiated ffmpeg transcoder")
 
@@ -82,5 +83,5 @@ func GetVideo(query string) (string, error) {
 		return "", err
 	}
 	logrus.Debug("Removed temporary audio file")
-	return info.ID + ".ogg", nil
+	return info.ID + ".opus", nil
 }
