@@ -110,7 +110,9 @@ func (p *Player) Play(media db.Media) error {
 
 func (p *Player) Skip() {
 	logrus.Debug("")
-	p.doneChan <- true
+	if p.State == PLAYING {
+		p.doneChan <- true
+	}
 }
 
 func (p *Player) UpVolume() {
