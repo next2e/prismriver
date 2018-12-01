@@ -42,10 +42,6 @@
   version = "1.2.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/faiface/beep"
-
-[[constraint]]
   name = "github.com/spf13/viper"
   version = "1.2.1"
 
@@ -64,3 +60,7 @@
 [[constraint]]
   name = "github.com/jinzhu/gorm"
   version = "1.9.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/adrg/libvlc-go"

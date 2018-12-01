@@ -1,9 +1,7 @@
 package player
 
 import (
-	"github.com/faiface/beep"
-	"github.com/faiface/beep/speaker"
-	"github.com/faiface/beep/vorbis"
+	"github.com/adrg/libvlc-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
@@ -26,14 +24,18 @@ const (
 )
 
 type Player struct {
-	control *beep.Ctrl
-	State int
+	doneChan chan bool
+	player   *vlc.Player
+	State    int
+	Volume   int
 }
 
 func GetPlayer() *Player {
 	playerOnce.Do(func() {
 		playerInstance = &Player{
-			State: STOPPED,
+			doneChan: make(chan bool),
+			State:    STOPPED,
+			Volume:   100,
 		}
 	})
 	return playerInstance
@@ -47,41 +49,82 @@ func (p *Player) Play(media db.Media) error {
 	}()
 	p.State = LOADING
 	dataDir := viper.GetString(constants.DATA)
-	filePath := path.Join(dataDir, media.ID+".ogg")
+	filePath := path.Join(dataDir, media.ID+".opus")
+
+	defer vlc.Release()
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		sources.GetVideo(media.ID)
 	}
 
-	file, err := os.Open(filePath)
-	if err != nil {
-		logrus.Error("Error opening media file:")
+	if err := vlc.Init("--no-video", "--quiet"); err != nil {
+		logrus.Error("Error initializing vlc:")
 		logrus.Error(err)
 		return err
 	}
-	stream, format, err := vorbis.Decode(file)
+	defer vlc.Release()
+
+	var err error
+	p.player, err = vlc.NewPlayer()
 	if err != nil {
-		logrus.Error("Error decoding media file:")
+		logrus.Error("Error creating player:")
 		logrus.Error(err)
 		return err
 	}
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/10))
-	p.control = &beep.Ctrl{
-		Streamer: stream,
+	defer func() {
+		p.player.Stop()
+		p.player.Release()
+	}()
+
+	vlcMedia, err := p.player.LoadMediaFromPath(filePath)
+	if err != nil {
+		logrus.Error("Error loading media file:")
+		logrus.Error(err)
+		return err
+	}
+	defer vlcMedia.Release()
+
+	if err := p.player.Play(); err != nil {
+		logrus.Error("Error playing media file:")
+		logrus.Error(err)
+		return err
+	}
+	p.player.SetVolume(p.Volume)
+
+	time.Sleep(1 * time.Second)
+	length, err := p.player.MediaLength()
+	if err != nil || length == 0 {
+		length = 1000 * 60
+	}
+	p.State = PLAYING
+
+	select {
+	case <-p.doneChan:
+		break
+	case <-time.After(time.Duration(length) * time.Millisecond):
+		break
 	}
 
-	done := make(chan struct{})
-	speaker.Play(beep.Seq(p.control, beep.Callback(func() {
-		close(done)
-	})))
-	playerInstance.State = PLAYING
-	<-done
-	playerInstance.State = STOPPED
-	queue := GetQueue()
-	queue.Advance()
 	return nil
 }
 
 func (p *Player) Skip() {
-	p.control.Streamer = nil
+	logrus.Debug("")
+	p.doneChan <- true
+}
+
+func (p *Player) UpVolume() {
+	if p.Volume == 100 {
+		return
+	}
+	p.Volume += 5
+	p.player.SetVolume(p.Volume)
+}
+
+func (p *Player) DownVolume() {
+	if p.Volume == 0 {
+		return
+	}
+	p.Volume -= 5
+	p.player.SetVolume(p.Volume)
 }
