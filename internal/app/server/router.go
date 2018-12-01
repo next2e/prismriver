@@ -6,6 +6,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/ttpcodes/prismriver/internal/app/server/routes/media"
+	"gitlab.com/ttpcodes/prismriver/internal/app/server/routes/player"
 	"gitlab.com/ttpcodes/prismriver/internal/app/server/routes/queue"
 	"gitlab.com/ttpcodes/prismriver/internal/app/server/ws/routes"
 	"net/http"
@@ -22,6 +23,7 @@ func CreateRouter() {
 	r := mux.NewRouter()
 	r.HandleFunc("/media/random", media.RandomHandler).Methods("GET")
 	r.HandleFunc("/media/search", media.SearchHandler).Methods("GET")
+	r.HandleFunc("/player", player.UpdateHandler).Methods("PUT")
 	r.HandleFunc("/queue", queue.IndexHandler).Methods("GET")
 	r.HandleFunc("/queue", queue.StoreHandler).Methods("POST")
 	r.HandleFunc("/queue/{id}", queue.DeleteHandler).Methods("DELETE")

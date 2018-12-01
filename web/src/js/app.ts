@@ -82,11 +82,19 @@ $(() => {
   })
   $('#volup').on('click', () => {
     $('#volup').blur()
-    $.get('/volup')
+    $.ajax({
+      data: { volume: 'up' },
+      type: 'PUT',
+      url: '/player'
+    })
   })
   $('#voldown').on('click', () => {
     $('#voldown').blur()
-    $.get('/voldown')
+    $.ajax({
+      data: { volume: 'down' },
+      type: 'PUT',
+      url: '/player'
+    })
   })
   $('#skipButton').on('click', () => {
     $('#skipButton').blur()
