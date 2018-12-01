@@ -19,6 +19,7 @@ var playerInstance *Player
 var playerOnce sync.Once
 
 const (
+	LOADING = iota
 	PAUSED  = iota
 	PLAYING = iota
 	STOPPED = iota
@@ -39,6 +40,12 @@ func GetPlayer() *Player {
 }
 
 func (p *Player) Play(media db.Media) error {
+	defer func() {
+		p.State = STOPPED
+		queue := GetQueue()
+		queue.Advance()
+	}()
+	p.State = LOADING
 	dataDir := viper.GetString(constants.DATA)
 	filePath := path.Join(dataDir, media.ID+".ogg")
 
