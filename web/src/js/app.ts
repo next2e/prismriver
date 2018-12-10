@@ -131,7 +131,8 @@ $(() => {
     }
   })
 
-  const socket = new WebSocket('ws://' + window.location.hostname + '/ws/queue')
+  const socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+      window.location.hostname + '/ws/queue')
 
   socket.addEventListener('close', () => {
     alert('WebSocket connection closed. Refresh to continue receiving queue updates!')
