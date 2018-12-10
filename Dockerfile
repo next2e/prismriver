@@ -1,4 +1,4 @@
-FROM goland:1.10.5-alpine3.8 as build
+FROM golang:1.10.5-alpine3.8 as build
 
 RUN apk add --no-cache dep
 RUN apk add --no-cache gcc
