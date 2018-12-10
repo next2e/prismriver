@@ -1,9 +1,12 @@
 package db
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
 	"sync"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -14,9 +17,15 @@ var err error
 var once sync.Once
 
 func GetDatabase() (*gorm.DB, error) {
-	once.Do(func () {
-		newDb, openErr := gorm.Open("postgres", "host=localhost port=5432 user=postgres " +
-			"password=postgres dbname=postgres sslmode=disable")
+	once.Do(func() {
+		dbHost := viper.GetString(constants.DBHOST)
+		dbName := viper.GetString(constants.DBNAME)
+		dbPassword := viper.GetString(constants.DBPASSWORD)
+		dbPort := viper.GetString(constants.DBPORT)
+		dbUser := viper.GetString(constants.DBPASSWORD)
+		connString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost,
+			dbPort, dbUser, dbPassword, dbName)
+		newDb, openErr := gorm.Open("postgres", connString)
 		err = openErr
 		db = newDb
 		if err != nil {
@@ -42,7 +51,7 @@ func FindMedia(query string, limit int) []Media {
 		logrus.Fatal("Error loading database:", err)
 	}
 	var media []Media
-	db.Limit(limit).Where("title ILIKE ?", "%" + query + "%").Find(&media)
+	db.Limit(limit).Where("title ILIKE ?", "%"+query+"%").Find(&media)
 	return media
 }
 
