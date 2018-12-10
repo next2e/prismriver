@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	"github.com/ttpcodes/prismriver/internal/app/sources"
+	"gitlab.com/ttpcodes/prismriver/internal/app/sources"
 )
 
 func TestYtdl(t *testing.T) {
