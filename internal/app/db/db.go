@@ -22,7 +22,7 @@ func GetDatabase() (*gorm.DB, error) {
 		dbName := viper.GetString(constants.DBNAME)
 		dbPassword := viper.GetString(constants.DBPASSWORD)
 		dbPort := viper.GetString(constants.DBPORT)
-		dbUser := viper.GetString(constants.DBPASSWORD)
+		dbUser := viper.GetString(constants.DBUSER)
 		connString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", dbHost,
 			dbPort, dbUser, dbPassword, dbName)
 		newDb, openErr := gorm.Open("postgres", connString)
