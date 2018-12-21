@@ -44,6 +44,26 @@ func (q *Queue) Advance() {
 	go q.sendQueueUpdate()
 }
 
+func (q *Queue) MoveDown(index int) {
+	if index == len(q.items) - 1 {
+		return
+	}
+	temp := q.items[index + 1]
+	q.items[index + 1] = q.items[index]
+	q.items[index] = temp
+	q.sendQueueUpdate()
+}
+
+func (q *Queue) MoveUp(index int) {
+	if index == 1 {
+		return
+	}
+	temp := q.items[index - 1]
+	q.items[index - 1] = q.items[index]
+	q.items[index] = temp
+	q.sendQueueUpdate()
+}
+
 func (q Queue) GetMedia() []db.Media {
 	return q.items
 }
