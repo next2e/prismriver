@@ -1,5 +1,9 @@
 import $ from 'jquery'
 import Snackbar from 'node-snackbar'
+import Vue, { VNode } from 'vue'
+
+import App from './components/App.vue'
+import SearchItem from './components/SearchItem.vue'
 
 import '../css/app.css'
 
@@ -64,6 +68,13 @@ function display_results (songs: string[]): void {
 
 $(() => {
   $.getJSON('/media/random', { limit: 20 }, display_results)
+  Vue.component('app', App); // not sure why this is needed here but TS is whining
+  (window as any).app = new Vue({
+    el: '#main',
+    render (createElement: (el: string) => VNode): VNode {
+      return createElement('app')
+    }
+  })
   $('#add-song').on('click', submit_video)
   $('#submit-search').on('click', submit_search)
   $('#quietButton').on('click', () => {

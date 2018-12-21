@@ -1,6 +1,7 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const { resolve } = require('path')
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
   entry: {
@@ -39,9 +40,16 @@ module.exports = {
         }]
       },
       {
+        loader: 'ts-loader',
+        options: {
+          appendTsSuffixTo: [/\.vue$/],
+        },
         test: /\.ts?$/,
-        use: 'ts-loader',
         exclude: /node_modules/
+      },
+      {
+        loader: 'vue-loader',
+        test: /\.vue$/
       }
     ]
   },
@@ -59,6 +67,7 @@ module.exports = {
     ]),
     new MiniCssExtractPlugin({
       filename: 'css/app.css'
-    })
+    }),
+    new VueLoaderPlugin()
   ]
 }
