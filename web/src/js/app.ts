@@ -10,29 +10,15 @@ import App from './components/App.vue'
 import QueueItem from './components/QueueItem.vue'
 import SearchForm from './components/SearchForm.vue'
 import SearchItem from './components/SearchItem.vue'
+import URLForm from './components/URLForm.vue'
 
 import '../css/app.css'
-
-function show_msg (text: string): void {
-  Snackbar.show({
-    duration: 3000,
-    showAction: false,
-    text
-  })
-}
-
-function submit_video (): void {
-  const url = $('#url')
-  $.post('/queue', { url: url.val() })
-  url.val('')
-  $('#linkButton').blur()
-  show_msg('Submitted! Now downloading song...')
-}
 
 $(() => {
   Vue.component('queue-item', QueueItem)
   Vue.component('search-form', SearchForm)
   Vue.component('search-item', SearchItem)
+  Vue.component('url-form', URLForm)
   Vue.component('app', App)
 
   Vue.mixin({
@@ -56,21 +42,5 @@ $(() => {
   $('#quietButton').on('click', () => {
     $('#quietButton').blur()
     $.get('/quiet')
-  })
-  $('#random').on('click', () => {
-    $('#random').blur()
-    show_msg('Adding a random song')
-    $.getJSON('/media/random', { limit: 1 }, (data) => {
-      $.post('/queue', {
-        id: data[0].ID,
-        type: data[0].Type
-      })
-    })
-  })
-  $('#url').keypress((e) => {
-    if (e.keyCode === 13) {
-      submit_video()
-      e.preventDefault()
-    }
   })
 })

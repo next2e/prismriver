@@ -11,17 +11,7 @@
       </div>
     </header>
 
-    <div class="linkDiv">
-      <p class="linkP"> Queue music - enter a link or go random! </p>
-      <div class="linkContainer">
-        <form class="linkForm">
-          <input id="url" class="linkInput" type="text" autocomplete="off" autofocus placeholder="Insert Youtube url here"></input>
-          <button class="linkButton hvr-shuttegit gitr-out-horizontal" id="add-song" type="button">Add</button>
-        </form>
-        <button id="random" class="hvr-shutter-out-horizontal" type="button">Random</button>
-      </div>
-    </div>
-
+    <url-form></url-form>
     <search-form></search-form>
 
     <div class="component">
