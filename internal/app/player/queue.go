@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/ttpcodes/prismriver/internal/app/db"
-	"gitlab.com/ttpcodes/prismriver/internal/app/server/ws/routes"
 	"sync"
 )
 
@@ -13,6 +12,7 @@ var queueOnce sync.Once
 
 type Queue struct {
 	items []db.Media
+	Update chan []byte
 }
 
 func GetQueue() *Queue {
@@ -20,6 +20,7 @@ func GetQueue() *Queue {
 		logrus.Info("Created queue instance.")
 		queueInstance = &Queue{
 			items: make([]db.Media, 0),
+			Update: make(chan []byte),
 		}
 	})
 	return queueInstance
@@ -64,6 +65,19 @@ func (q *Queue) MoveUp(index int) {
 	q.sendQueueUpdate()
 }
 
+func (q Queue) GenerateResponse() []byte {
+	titles := make([]string, 0)
+	for _, item := range q.items {
+		titles = append(titles, item.Title)
+	}
+	response, err := json.Marshal(titles)
+	if err != nil {
+		logrus.Error("Error generating JSON response:")
+		logrus.Error(err)
+	}
+	return response
+}
+
 func (q Queue) GetMedia() []db.Media {
 	return q.items
 }
@@ -74,16 +88,6 @@ func (q *Queue) Remove(index int) {
 }
 
 func (q Queue) sendQueueUpdate() {
-	logrus.Debug("Called sendQueueUpdate.")
-	titles := make([]string, 0)
-	for _, item := range q.items {
-		titles = append(titles, item.Title)
-	}
-	message, err := json.Marshal(titles)
-	if err != nil {
-		logrus.Error("Error generating JSON response:")
-		logrus.Error(err)
-	}
-	hub := routes.GetQueueHub()
-	hub.Broadcast <- message
+	response := q.GenerateResponse()
+	q.Update <- response
 }

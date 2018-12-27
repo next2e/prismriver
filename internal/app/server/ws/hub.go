@@ -1,6 +1,8 @@
 package ws
 
-import "github.com/sirupsen/logrus"
+import (
+	"github.com/sirupsen/logrus"
+)
 
 type Hub struct {
 	Broadcast chan []byte
