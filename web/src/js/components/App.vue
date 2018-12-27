@@ -22,20 +22,7 @@
       </div>
     </div>
 
-    <div class="component" style="padding-top: 6px;">
-      <p class="linkP"> Choose from past songs &nbsp; <a href="#" id="toggle-search"><span id="search-arrow" class="glyphicon glyphicon-chevron-down"></span></a></p>
-      <div id="search-container" style="display: none">
-        <div class="linkContainer">
-          <form class="linkForm">
-            <input id="query" class="linkInput" type="text" autocomplete="off" autofocus placeholder="Search">
-            <button id="submit-search" class="linkButton hvr-shutter-out-horizontal" type="button">Search</button>
-          </form>
-          <button id="shuffle" class="hvr-shutter-out-horizontal" type="button">Shuffle</button>
-        </div>
-        <ul id="search-results">
-        </ul>
-      </div>
-    </div>
+    <search-form></search-form>
 
     <div class="component">
       <p class="title"> Currently playing </p>
@@ -62,3 +49,23 @@
     </div>
   </div>
 </template>
+
+<script lang="ts">
+  import $ from 'jquery'
+  import Vue from 'vue'
+  import Component from 'vue-class-component'
+
+  const BaseComponent = Vue.extend({
+    data () {
+      return {
+        results: []
+      }
+    },
+    mounted () {
+    }
+  })
+
+  @Component
+  export default class App extends BaseComponent {
+  }
+</script>

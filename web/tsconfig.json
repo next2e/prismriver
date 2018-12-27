@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "experimentalDecorators": true,
     "esModuleInterop": true,
     "lib": [
       "dom", "es7"

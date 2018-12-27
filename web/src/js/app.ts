@@ -2,7 +2,12 @@ import $ from 'jquery'
 import Snackbar from 'node-snackbar'
 import Vue, { VNode } from 'vue'
 
+(window as any).jQuery = $
+
+import 'bootstrap'
+
 import App from './components/App.vue'
+import SearchForm from './components/SearchForm.vue'
 import SearchItem from './components/SearchItem.vue'
 
 import '../css/app.css'
@@ -15,30 +20,12 @@ function show_msg (text: string): void {
   })
 }
 
-// Sanitize punctuation
-function encode_str (s: string): string {
-  return s.replace(/'/g, '%27').replace(/"/g, '%22')
-}
-
-function decode_str (s: string): string {
-  return s.replace(/%27/g, "'").replace(/%22/g, '"')
-}
-
 function submit_video (): void {
   const url = $('#url')
   $.post('/queue', { url: url.val() })
   url.val('')
   $('#linkButton').blur()
   show_msg('Submitted! Now downloading song...')
-}
-
-function submit_search (): void {
-  const query = $('#query').val()
-  if ((query as string).length) {
-    $.getJSON('/media/search', { query }, display_results)
-  } else {
-    $.getJSON('/media/random', { limit: 20 }, display_results)
-  }
 }
 
 (window as any).delete_song = (songNumber: number): void => {
@@ -48,35 +35,29 @@ function submit_search (): void {
   })
 }
 
-(window as any).select_song = (song: string, type: string, title: string): void => {
-  title = decode_str(title)
-  show_msg('Adding ' + title)
-  $.post('/queue', { id: song, type })
-}
-
-function display_results (songs: string[]): void {
-  let listing = ''
-  songs.forEach((song) => {
-    listing += '<li></span><button onclick="select_song(\'' + (song as any).ID + '\', \'' + (song as any).Type +
-        '\', \'' + encode_str((song as any).Title) + '\')" '
-    listing += 'class="select-song">Add</button> '
-    listing += (song as any).Title
-    listing += '</span></li>'
-  })
-  $('#search-results').html(listing)
-}
-
 $(() => {
-  $.getJSON('/media/random', { limit: 20 }, display_results)
-  Vue.component('app', App); // not sure why this is needed here but TS is whining
+  Vue.component('search-form', SearchForm)
+  Vue.component('search-item', SearchItem)
+  Vue.component('app', App)
+
+  Vue.mixin({
+    methods: {
+      showMessage (message: string): void {
+        Snackbar.show({
+          duration: 3000,
+          showAction: false,
+          text: message
+        })
+      }
+    }
+  }); // not sure why this is needed here but TS is whining
+
   (window as any).app = new Vue({
     el: '#main',
     render (createElement: (el: string) => VNode): VNode {
       return createElement('app')
     }
   })
-  $('#add-song').on('click', submit_video)
-  $('#submit-search').on('click', submit_search)
   $('#quietButton').on('click', () => {
     $('#quietButton').blur()
     $.get('/quiet')
@@ -114,30 +95,9 @@ $(() => {
       url: '/queue/0'
     })
   })
-  $('#shuffle').on('click', () => {
-    $('#shuffle').blur()
-    $.getJSON('/media/random', { limit: 20 }, display_results)
-  })
-  $('#toggle-search').on('click', () => {
-    if ($('#search-container:visible').length) {
-      $('#search-container').hide('slow')
-    } else {
-      $('#search-container').show('slow')
-    }
-    const searchArrow = $('#search-arrow')
-    searchArrow.toggleClass('glyphicon-chevron-down')
-    searchArrow.toggleClass('glyphicon-chevron-up')
-    $('#toggle-search').blur()
-  })
   $('#url').keypress((e) => {
     if (e.keyCode === 13) {
       submit_video()
-      e.preventDefault()
-    }
-  })
-  $('#query').keypress((e) => {
-    if (e.keyCode === 13) {
-      submit_search()
       e.preventDefault()
     }
   })

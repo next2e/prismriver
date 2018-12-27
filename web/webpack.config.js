@@ -54,7 +54,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.css', '.ts']
+    extensions: ['.css', '.js', '.ts']
   },
   output: {
     filename: 'js/app.js',
