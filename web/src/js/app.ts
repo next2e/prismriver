@@ -7,6 +7,7 @@ import Vue, { VNode } from 'vue'
 import 'bootstrap'
 
 import App from './components/App.vue'
+import QueueItem from './components/QueueItem.vue'
 import SearchForm from './components/SearchForm.vue'
 import SearchItem from './components/SearchItem.vue'
 
@@ -28,14 +29,8 @@ function submit_video (): void {
   show_msg('Submitted! Now downloading song...')
 }
 
-(window as any).delete_song = (songNumber: number): void => {
-  $.ajax({
-    type: 'DELETE',
-    url: '/queue/' + songNumber
-  })
-}
-
 $(() => {
+  Vue.component('queue-item', QueueItem)
   Vue.component('search-form', SearchForm)
   Vue.component('search-item', SearchItem)
   Vue.component('app', App)
@@ -102,30 +97,4 @@ $(() => {
     }
   })
 
-  const socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-      window.location.hostname + '/ws/queue')
-
-  socket.addEventListener('close', () => {
-    alert('WebSocket connection closed. Refresh to continue receiving queue updates!')
-  })
-
-  socket.addEventListener('error', () => {
-    alert('Error in the WebSocket connection. If there are issues with the queue updating, refresh!')
-  })
-
-  socket.addEventListener('message', (event) => {
-    const queue = JSON.parse(event.data)
-    let things = ''
-    $('#playing').html('<p>' + queue[0] + '</p>')
-    const upcoming = queue.slice(1)
-    for (const index in upcoming) {
-      if (!upcoming.hasOwnProperty(index)) {
-        continue
-      }
-      things += '<li><span>'
-      things += '<button onclick="delete_song(' + (parseInt(index, 10) + 1) + ')" class="delete"> Delete </button>'
-      things += upcoming[index] + '</span></li>'
-    }
-    $('#queue').html(things)
-  })
 })
