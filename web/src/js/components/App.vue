@@ -36,7 +36,7 @@
     <div class="component">
       <p class="title"> Current queue </p>
       <ul id="queue" class="nomargin">
-        <queue-item v-for="(item, index) in queue" v-if="index > 0" :index="index" :title="item"></queue-item>
+        <queue-item v-for="(item, index) in queue" v-if="index > 0" :index="index" :title="item" :disableup="index === 1" :disabledown="index === queue.length - 1"></queue-item>
       </ul>
     </div>
   </div>
