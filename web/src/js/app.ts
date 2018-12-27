@@ -67,34 +67,10 @@ $(() => {
       })
     })
   })
-  $('#volup').on('click', () => {
-    $('#volup').blur()
-    $.ajax({
-      data: { volume: 'up' },
-      type: 'PUT',
-      url: '/player'
-    })
-  })
-  $('#voldown').on('click', () => {
-    $('#voldown').blur()
-    $.ajax({
-      data: { volume: 'down' },
-      type: 'PUT',
-      url: '/player'
-    })
-  })
-  $('#skipButton').on('click', () => {
-    $('#skipButton').blur()
-    $.ajax({
-      type: 'DELETE',
-      url: '/queue/0'
-    })
-  })
   $('#url').keypress((e) => {
     if (e.keyCode === 13) {
       submit_video()
       e.preventDefault()
     }
   })
-
 })

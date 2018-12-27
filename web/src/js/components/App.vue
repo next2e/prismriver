@@ -31,14 +31,14 @@
         <p v-else>Nothing currently playing</p>
       </div>
       <div class="skipDiv">
-        <button id="skipButton" class="hvr-shutter-out-horizontal"><span class="glyphicon glyphicon-forward"></span>Skip song</button>
+        <button id="skipButton" class="hvr-shutter-out-horizontal" @click="skip"><span class="glyphicon glyphicon-forward"></span>Skip song</button>
       </div>
       <div class="volumeDiv">
         <p class="noMargin">
           Volume:
-          <button id="voldown" class="hvr-bounce-to-left"><span class="glyphicon glyphicon-volume-down"></span></button>
+          <button id="voldown" class="hvr-bounce-to-left" @click="volDown"><span class="glyphicon glyphicon-volume-down"></span></button>
           <!-- <span id="vol"> eman </span> -->
-          <button id="volup" class="hvr-bounce-to-right"><span class="glyphicon glyphicon-volume-up"></span></button>
+          <button id="volup" class="hvr-bounce-to-right" @click="volUp"><span class="glyphicon glyphicon-volume-up"></span></button>
         </p>
       </div>
     </div>
@@ -85,5 +85,30 @@
 
   @Component
   export default class App extends BaseComponent {
+    skip (event: Event) {
+      $((event.target as Object)).blur()
+      $.ajax({
+        type: 'DELETE',
+        url: '/queue/0'
+      })
+    }
+
+    volDown (event: Event) {
+      $((event.target as Object)).blur()
+      $.ajax({
+        data: { volume: 'down' },
+        type: 'PUT',
+        url: '/player'
+      })
+    }
+
+    volUp (event: Event) {
+      $((event.target as Object)).blur()
+      $.ajax({
+        data: { volume: 'up' },
+        type: 'PUT',
+        url: '/player'
+      })
+    }
   }
 </script>
