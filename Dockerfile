@@ -21,7 +21,11 @@ RUN go build cmd/prismriver/prismriver.go
 
 FROM alpine:3.8
 
-RUN apk add --no-cache ca-certificates ffmpeg vlc
+RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache ffmpeg
+RUN apk add --no-cache vlc
+RUN apk add --no-cache youtube-dl
+
 COPY --from=build /go/src/gitlab.com/ttpcodes/prismriver/prismriver /usr/local/bin/prismriver
 
 CMD ["/usr/local/bin/prismriver"]
