@@ -98,6 +98,7 @@ code)
 assets)
     - [yarn](https://yarnpkg.com/) (for retrieving frontend dependencies)
 - git (for cloning this repo)
+- make (for running the Makefile commands)
 - libvlc headers (for compiling audio support)
 
 Begin by cloning the repository:
@@ -105,25 +106,25 @@ Begin by cloning the repository:
 git clone https://gitlab.com/ttpcodes/prismriver
 cd prismriver/
 ```
-To build the frontend assets, navigate into `web/`, fetch the dependencies,
-and run the build command defined in `package.json`:
-```bash
-cd web/
-yarn
-yarn run build
-```
-Return to the top level directory. You can now bundle the web assets into Go
-and compile the binary:
-```bash
-cd ../
-dep ensure
-statik -src=web/dist
-go build cmd/prismriver/prismriver.go
-```
-That will produce a binary named `prismriver` in the current directory. Simply
-copy it to any location that you wish. You may need to enable the executable
-flag on the binary using `chmod`.
+This project contains a Makefile which will handle building of everything for
+you, including frontend assets, backend assets, and even dependencies. These
+are all of the Makefile commands:
 
+| Command | Description | Usage |
+| --- | --- | --- |
+| all | Calls deps and build. | make |
+| build | Builds the final binary. Calls frontend. | make build |
+| deps | Installs all dep and yarn dependencies. | make deps
+| frontend | Builds and bundles the frontend. | make frontend
+| install | Installs the binary to /usr/local/bin. | sudo make install
+| run | Runs the binary (for development purposes only). Calls build. | make run |
+To build and install Prismriver, run these commands:
+```bash
+# Install all dep and yarn dependencies and build the binary:
+make
+# Install the binary to /usr/local/bin:
+sudo make install
+```
 Before running the binary, there are a few dependencies you will need to
 install manually:
 - ffmpeg (for transcoding downloaded audio files)
