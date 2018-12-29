@@ -7,6 +7,7 @@ import Vue, { VNode } from 'vue'
 import 'bootstrap'
 
 import App from './components/App.vue'
+import Player from './components/Player.vue'
 import QueueItem from './components/QueueItem.vue'
 import SearchForm from './components/SearchForm.vue'
 import SearchItem from './components/SearchItem.vue'
@@ -15,6 +16,7 @@ import URLForm from './components/URLForm.vue'
 import '../css/app.css'
 
 $(() => {
+  Vue.component('player', Player)
   Vue.component('queue-item', QueueItem)
   Vue.component('search-form', SearchForm)
   Vue.component('search-item', SearchItem)
