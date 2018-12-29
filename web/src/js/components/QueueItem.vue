@@ -6,6 +6,9 @@
       <button v-if="!disabledown" @click="down" class="select-song">Down</button>
       {{ item.Media.Title }}
     </span>
+    <div v-if="item.Downloading" class="progress" style="margin-top: 8px; height: 2vh; font-size: 12px; text-align: center; line-height: 100%;">
+      <div class="progress-bar" :class="item.DownloadProgress < 50 ? 'progress-bar-info' : 'progress-bar-success'" style="min-width: 2vw;" :style="'width: ' + item.DownloadProgress + '%'"></div>
+    </div>
   </li>
 </template>
 
