@@ -4,7 +4,7 @@
       <button @click="deleteSong" class="delete"> Delete </button>
       <button v-if="!disableup" @click="up" class="select-song">Up</button>
       <button v-if="!disabledown" @click="down" class="select-song">Down</button>
-      {{ title }}
+      {{ item.Media.Title }}
     </span>
   </li>
 </template>
@@ -18,7 +18,7 @@
     @Prop(Boolean) disabledown!: boolean
     @Prop(Boolean) disableup!: boolean
     @Prop(Number) index!: number
-    @Prop(String) title!: string
+    @Prop(Object) item!: IQueueItem
 
     deleteSong () {
       $.ajax({

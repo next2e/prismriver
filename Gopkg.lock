@@ -229,6 +229,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:1ea52f6995c4e32d6d4c24c2894ef1ae57b1feb8ecd9026d1efcf780150083a2"
+  name = "gitlab.com/ttpcodes/youtube-dl-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ee28e92242fe8ab5fbf3a904e9bc5d5866afbe65"
+
+[[projects]]
+  branch = "master"
   digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
@@ -295,6 +303,7 @@
     "github.com/sirupsen/logrus",
     "github.com/spf13/viper",
     "github.com/xfrr/goffmpeg/transcoder",
+    "gitlab.com/ttpcodes/youtube-dl-go",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

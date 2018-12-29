@@ -1,13 +1,11 @@
 package player
 
 import (
+	"encoding/json"
 	"github.com/adrg/libvlc-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
-	"gitlab.com/ttpcodes/prismriver/internal/app/db"
-	"gitlab.com/ttpcodes/prismriver/internal/app/sources"
-	"os"
 	"path"
 	"sync"
 	"time"
@@ -97,7 +95,7 @@ func (p Player) GenerateResponse() []byte {
 
 }
 
-func (p *Player) Play(media db.Media) error {
+func (p *Player) Play(item *QueueItem) error {
 	defer func() {
 		p.State = STOPPED
 		queue := GetQueue()
@@ -105,13 +103,10 @@ func (p *Player) Play(media db.Media) error {
 	}()
 	p.State = LOADING
 	dataDir := viper.GetString(constants.DATA)
-	filePath := path.Join(dataDir, media.ID+".opus")
+	filePath := path.Join(dataDir, item.Media.ID+".opus")
+	<- item.ready
 
 	defer vlc.Release()
-
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		sources.GetVideo(media.ID)
-	}
 
 	if err := vlc.Init("--no-video", "--quiet"); err != nil {
 		logrus.Error("Error initializing vlc:")

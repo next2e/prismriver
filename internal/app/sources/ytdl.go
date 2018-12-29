@@ -3,7 +3,7 @@ package sources
 import (
 	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
 	"gitlab.com/ttpcodes/prismriver/internal/app/db"
-	"io/ioutil"
+	"gitlab.com/ttpcodes/youtube-dl-go"
 	"os"
 	"path"
 
@@ -28,60 +28,59 @@ func GetInfo(query string) (db.Media, error) {
 	}, nil
 }
 
-func GetVideo(query string) (string, error) {
-	file, err := ioutil.TempFile("", "ytdl-")
-	if err != nil {
-		logrus.Error("Error when opening temporary file")
-		logrus.Error(err)
-		return "", err
-	}
-	logrus.Debug("Opened TempFile for video download")
-
+func GetVideo(query string) (chan float64, chan struct{}, error) {
 	info, err := ytdl.GetVideoInfoFromID(query)
 	if err != nil {
 		logrus.Error("Error when loading video info")
 		logrus.Error(err)
-		return "", err
+		return nil, nil, err
 	}
 	logrus.Debug("Retrieved video info")
-	// info.Formats.Best(ytdl.FormatAudioBitrateKey).Worst(ytdl.FormatResolutionKey)[0]
-	if err := info.Download(info.Formats[0], file); err != nil {
-		logrus.Error("Error when downloading media")
-		logrus.Error(err)
-		return "", err
-	}
-	logrus.Debug("Downloaded media file")
-	if err := file.Close(); err != nil {
-		logrus.Error("Error when writing temporary file")
-		logrus.Error(err)
-		return "", err
-	}
-	logrus.Debug("Wrote media to temporary file")
+	progressChan := make(chan float64)
+	doneChan := make(chan struct{})
+	go func() {
+		downloader := youtubedl.NewDownloader(query)
+		downloader.Output("/tmp/" + youtubedl.ID)
+		eventChan, closeChan, err := downloader.RunProgress()
+		if err != nil {
+			logrus.Error("Error when downloading video file:")
+			logrus.Error(err)
+		}
+		for progress := range eventChan {
+			logrus.Debugf("Download is at %f percent completion", progress)
+			progressChan <- progress / 2
+		}
+		tmpPath := <- closeChan
+		logrus.Debug("Downloaded media file")
 
-	trans := new(transcoder.Transcoder)
-	dataDir := viper.GetString(constants.DATA)
-	filePath := path.Join(dataDir, info.ID+".opus")
-	trans.Initialize(file.Name(), filePath)
-	trans.MediaFile().SetAudioCodec("libopus")
-	trans.MediaFile().SetSkipVideo(true)
-	logrus.Debug("Instantiated ffmpeg transcoder")
+		trans := new(transcoder.Transcoder)
+		dataDir := viper.GetString(constants.DATA)
+		filePath := path.Join(dataDir, info.ID+".opus")
+		trans.Initialize(tmpPath, filePath)
+		trans.MediaFile().SetAudioCodec("libopus")
+		trans.MediaFile().SetSkipVideo(true)
+		logrus.Debug("Instantiated ffmpeg transcoder")
 
-	done := trans.Run(true)
-	progress := trans.Output()
-	for msg := range progress {
-		logrus.Debug(msg)
-	}
-	if err := <-done; err != nil {
-		logrus.Error("Error in transcoding process")
-		logrus.Error(err)
-		return "", err
-	}
-	logrus.Debug("Transcoded media to vorbis audio")
-	if err := os.Remove(file.Name()); err != nil {
-		logrus.Error("Error when removing temporary file")
-		logrus.Error(err)
-		return "", err
-	}
-	logrus.Debug("Removed temporary audio file")
-	return info.ID + ".opus", nil
+		done := trans.Run(true)
+		progress := trans.Output()
+		for msg := range progress {
+			progressChan <- msg.Progress / 2 + 50
+			logrus.Debug(msg)
+		}
+		if err := <-done; err != nil {
+			logrus.Error("Error in transcoding process")
+			logrus.Error(err)
+		}
+		logrus.Debug("Transcoded media to vorbis audio")
+		if err := os.Remove(tmpPath); err != nil {
+			logrus.Error("Error when removing temporary file")
+			logrus.Error(err)
+		}
+		logrus.Debug("Removed temporary audio file")
+		logrus.Infof("Downloaded new audio file for YouTube video ID %s", info.ID)
+		close(progressChan)
+		doneChan <- struct{}{}
+		close(doneChan)
+	}()
+	return progressChan, doneChan, nil
 }

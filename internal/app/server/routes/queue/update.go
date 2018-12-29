@@ -19,7 +19,7 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	queue := player.GetQueue()
-	items := queue.GetMedia()
+	items := queue.GetItems()
 	if int(index) < len(items) {
 		r.ParseForm()
 		move := r.Form.Get("move")

@@ -20,7 +20,7 @@ func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 		playInstance.Skip()
 	} else {
 		queue := player.GetQueue()
-		items := queue.GetMedia()
+		items := queue.GetItems()
 
 		if int(index) < len(items) {
 			queue.Remove(int(index))
