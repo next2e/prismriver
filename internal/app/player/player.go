@@ -15,19 +15,27 @@ import (
 
 var playerInstance *Player
 var playerOnce sync.Once
+var playerTicker *time.Ticker
 
 const (
-	LOADING = iota
-	PAUSED  = iota
-	PLAYING = iota
 	STOPPED = iota
+	PLAYING = iota
+	PAUSED = iota
+	LOADING = iota
 )
 
 type Player struct {
 	doneChan chan bool
 	player   *vlc.Player
 	State    int
+	Update   chan []byte
 	Volume   int
+}
+
+type PlayerState struct {
+	CurrentTime int
+	TotalTime int
+	State int
 }
 
 func GetPlayer() *Player {
@@ -35,10 +43,58 @@ func GetPlayer() *Player {
 		playerInstance = &Player{
 			doneChan: make(chan bool),
 			State:    STOPPED,
+			Update:   make(chan []byte),
 			Volume:   100,
 		}
+		playerTicker = time.NewTicker(30 * time.Second)
+		go func () {
+			for {
+				select {
+				case <- playerTicker.C:
+					response := playerInstance.GenerateResponse()
+					playerInstance.Update <- response
+				}
+			}
+		}()
 	})
 	return playerInstance
+}
+
+func (p Player) GenerateResponse() []byte {
+	if p.State == PLAYING {
+		currentTime, err := p.player.MediaTime()
+		if err != nil {
+			logrus.Error("Error getting player's media time:")
+			logrus.Error(err)
+		}
+		totalTime, err := p.player.MediaLength()
+		if err != nil {
+			logrus.Error("Error getting player's media length:")
+			logrus.Error(err)
+		}
+		response, err := json.Marshal(PlayerState{
+			CurrentTime: currentTime,
+			State: p.State,
+			TotalTime: totalTime,
+		})
+		if err != nil {
+			logrus.Error("Error generating JSON response:")
+			logrus.Error(err)
+		}
+		return response
+	} else {
+		response, err := json.Marshal(PlayerState{
+			CurrentTime: 0,
+			State: p.State,
+			TotalTime: 0,
+		})
+		if err != nil {
+			logrus.Error("Error generating JSON response:")
+			logrus.Error(err)
+		}
+		return response
+	}
+
 }
 
 func (p *Player) Play(media db.Media) error {
@@ -97,6 +153,7 @@ func (p *Player) Play(media db.Media) error {
 		length = 1000 * 60
 	}
 	p.State = PLAYING
+	p.sendPlayerUpdate()
 
 	select {
 	case <-p.doneChan:
@@ -104,6 +161,8 @@ func (p *Player) Play(media db.Media) error {
 	case <-time.After(time.Duration(length) * time.Millisecond):
 		break
 	}
+	p.State = STOPPED
+	p.sendPlayerUpdate()
 
 	return nil
 }
@@ -129,4 +188,10 @@ func (p *Player) DownVolume() {
 	}
 	p.Volume -= 5
 	p.player.SetVolume(p.Volume)
+}
+
+func (p Player) sendPlayerUpdate() {
+	response := p.GenerateResponse()
+	p.Update <- response
+	logrus.Debug("Sent player update event.")
 }
