@@ -4,20 +4,15 @@ RUN apk add --no-cache dep
 RUN apk add --no-cache gcc
 RUN apk add --no-cache git
 RUN apk add --no-cache libc-dev
+RUN apk add --no-cache make
 RUN apk add --no-cache vlc-dev
 RUN apk add --no-cache yarn
 RUN go get github.com/rakyll/statik
 
 COPY . /go/src/gitlab.com/ttpcodes/prismriver
 
-WORKDIR /go/src/gitlab.com/ttpcodes/prismriver/web
-RUN yarn
-RUN yarn run build
-
 WORKDIR /go/src/gitlab.com/ttpcodes/prismriver
-RUN dep ensure
-RUN statik -src=web/dist
-RUN go build cmd/prismriver/prismriver.go
+RUN make
 
 FROM alpine:3.8
 
