@@ -36,6 +36,7 @@ the container:
 | PRISMRIVER_DB_PORT | The port of the Postgres server. | 5432 |
 | PRISMRIVER_DB_USER | The username to authenticate with the database. | prismriver
 | PRISMRIVER_VERBOSITY | The logging level of the server. | info |
+
 These can either be specified in your command when running the server, as flags
 when launching a Docker container, or through other means.
 
@@ -118,6 +119,7 @@ are all of the Makefile commands:
 | frontend | Builds and bundles the frontend. | make frontend
 | install | Installs the binary to /usr/local/bin. | sudo make install
 | run | Runs the binary (for development purposes only). Calls build. | make run |
+
 To build and install Prismriver, run these commands:
 ```bash
 # Install all dep and yarn dependencies and build the binary:
