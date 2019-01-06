@@ -22,13 +22,15 @@
 
 <script lang="ts">
   import $ from 'jquery'
-  import { Component, Prop, Vue } from 'vue-property-decorator'
+  import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 
   @Component
   export default class Player extends Vue {
     currentTime = 0
+    socket: WebSocket | undefined
     state = 0
     totalTime = 0
+    ws = 0
 
     @Prop(String) currenttitle!: string
 
@@ -39,23 +41,31 @@
         }
       }, 1000)
 
-      const socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-          window.location.hostname + '/ws/player')
+      setInterval(() => {
+        if (this.ws === 0) {
+          this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+              window.location.hostname + '/ws/player')
 
-      socket.addEventListener('close', () => {
-        alert('WebSocket connection closed. Refresh to continue receiving queue updates!')
-      })
+          this.socket.addEventListener('close', () => {
+            this.ws = 0
+          })
+          this.socket.addEventListener('error', () => {
+            this.ws = 2
+          })
+          this.socket.addEventListener('message', (event) => {
+            this.ws = 1
+            const data = JSON.parse(event.data)
+            this.currentTime = data.CurrentTime
+            this.state = data.State
+            this.totalTime = data.TotalTime
+          })
+        }
+      }, 5000)
+    }
 
-      socket.addEventListener('error', () => {
-        alert('Error in the WebSocket connection. If there are issues with the queue updating, refresh!')
-      })
-
-      socket.addEventListener('message', (event) => {
-        const data = JSON.parse(event.data)
-        this.currentTime = data.CurrentTime
-        this.state = data.State
-        this.totalTime = data.TotalTime
-      })
+    @Watch('ws')
+    onWSChanged(state: number) {
+      this.$emit('update:ws', state)
     }
 
     skip (event: Event) {
