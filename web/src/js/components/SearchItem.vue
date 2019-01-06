@@ -1,6 +1,6 @@
 <template>
   <li>
-    <span>
+    <span class="text-overflow">
       <button v-on:click="queue" class="select-song">Add</button>
       {{ title }}
     </span>

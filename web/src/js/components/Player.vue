@@ -2,7 +2,7 @@
   <div class="component">
     <p class="title"> Currently playing </p>
     <div id="playing">
-      <p v-if="currenttitle">{{ currenttitle }}</p>
+      <p v-if="currenttitle" class="text-overflow">{{ currenttitle }}</p>
       <p v-else>Nothing currently playing</p>
     </div>
     <div class="skipDiv">
