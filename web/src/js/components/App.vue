@@ -17,9 +17,9 @@
 
     <div class="component">
       <p class="title"> Current queue </p>
-      <ul id="queue" class="nomargin">
-        <queue-item v-for="(item, index) in queue" v-if="index > 0" :index="index" :item="item" :disableup="index === 1" :disabledown="index === queue.length - 1"></queue-item>
-      </ul>
+      <transition-group id="queue" class="nomargin" name="queue" tag="ul">
+        <queue-item class="queue-item" v-for="(item, index) in queue" :key="item.Media.Title" v-if="index > 0" :index="index" :item="item" :disableup="index === 1" :disabledown="index === queue.length - 1"></queue-item>
+      </transition-group>
     </div>
   </div>
 </template>
@@ -50,3 +50,16 @@
     }
   }
 </script>
+
+<style scoped>
+  .queue-enter, .queue-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  .queue-item {
+    transition: all 1s;
+  }
+  .queue-leave-active {
+    position: absolute;
+  }
+</style>
