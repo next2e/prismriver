@@ -7,7 +7,7 @@
           <span>2GroovE</span>
           <i class="glyphicon glyphicon-music"></i>
         </div>
-        <button class="hvr-pulse" id="quietButton"><i class="glyphicon glyphicon-exclamation-sign"></i><span class="quietText">Be quiet!</span></button>
+        <button class="hvr-pulse" id="quietButton" @click="beQuiet"><i class="glyphicon glyphicon-exclamation-sign"></i><span class="quietText">Be quiet!</span></button>
       </div>
     </header>
 
@@ -32,7 +32,9 @@
 </template>
 
 <script lang="ts">
+  import $ from 'jquery'
   import { Component, Vue } from 'vue-property-decorator'
+
   @Component
   export default class App extends Vue {
     playerWS = 0
@@ -40,6 +42,14 @@
     queueWS = 0
     results = []
     socket: WebSocket | undefined
+
+    beQuiet () {
+      $.ajax({
+        data: { quiet: 'true' },
+        type: 'PUT',
+        url: '/player'
+      })
+    }
 
     mounted () {
       setInterval(() => {
