@@ -13,6 +13,7 @@
         Volume:
         <button id="voldown" class="hvr-bounce-to-left" @click="volDown"><span class="glyphicon glyphicon-volume-down"></span></button>
         <!-- <span id="vol"> eman </span> -->
+        <span>{{ volume }}</span>
         <button id="volup" class="hvr-bounce-to-right" @click="volUp"><span class="glyphicon glyphicon-volume-up"></span></button>
         <input type="range" :min="0" :max="totalTime / 1000" :value="currentTime / totalTime * totalTime / 1000">
       </p>
@@ -30,6 +31,7 @@
     socket: WebSocket | undefined
     state = 0
     totalTime = 0
+    volume = 100
     ws = 0
 
     @Prop(String) currenttitle!: string
@@ -58,6 +60,7 @@
             this.currentTime = data.CurrentTime
             this.state = data.State
             this.totalTime = data.TotalTime
+            this.volume = data.Volume
           })
         }
       }, 5000)
