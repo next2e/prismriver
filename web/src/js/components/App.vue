@@ -20,7 +20,7 @@
 
     <url-form></url-form>
     <search-form></search-form>
-    <player :currenttitle="queue.length ? queue[0].Media.Title : null" @update:ws="playerWS = $event"></player>
+    <player :item="queue[0]" @update:ws="playerWS = $event"></player>
 
     <div class="component">
       <p class="title"> Current queue </p>

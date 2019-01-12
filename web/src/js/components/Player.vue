@@ -2,8 +2,11 @@
   <div class="component">
     <p class="title"> Currently playing </p>
     <div id="playing">
-      <p v-if="currenttitle" class="text-overflow">{{ currenttitle }}</p>
+      <p v-if="item" class="text-overflow">{{ item.Media.Title }}</p>
       <p v-else>Nothing currently playing</p>
+      <div v-if="item && item.Downloading" class="progress" style="margin-top: 8px; height: 2vh; font-size: 12px; text-align: center; line-height: 100%;">
+        <div class="progress-bar" :class="item.DownloadProgress < 50 ? 'progress-bar-info' : 'progress-bar-success'" style="min-width: 2vw;" :style="{width: item.DownloadProgress + '%'}"></div>
+      </div>
     </div>
     <div class="skipDiv">
       <button id="skipButton" class="hvr-shutter-out-horizontal" @click="skip"><span class="glyphicon glyphicon-forward"></span>Skip song</button>
@@ -34,7 +37,7 @@
     volume = 100
     ws = 0
 
-    @Prop(String) currenttitle!: string
+    @Prop(Object) item!: IMedia
 
     mounted () {
       setInterval(() => {
