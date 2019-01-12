@@ -18,7 +18,10 @@
         <!-- <span id="vol"> eman </span> -->
         <span>{{ volume }}</span>
         <button id="volup" class="hvr-bounce-to-right" @click="volUp"><span class="glyphicon glyphicon-volume-up"></span></button>
-        <input type="range" :min="0" :max="totalTime / 1000" :value="currentTime / totalTime * totalTime / 1000">
+        <div style="display: flex; width: 100%; align-items: center;">
+          <input id="time" type="range" :min="0" :max="totalTime / 1000" :value="currentTime / totalTime * totalTime / 1000" style="width: auto; flex-grow: 2;">
+          <span style="margin-left: 15px;">{{ parseTime(currentTime / 1000) +  ' / ' + parseTime(totalTime / 1000) }}</span>
+        </div>
       </p>
     </div>
   </div>
@@ -38,6 +41,19 @@
     ws = 0
 
     @Prop(Object) item!: IMedia
+
+    parseTime (time: number, recur: boolean = false): string {
+      time = Math.floor(time)
+      let timeString = ''
+      timeString = time % 60 < 10 ? '0' + time % 60 + timeString : time % 60 + timeString
+      if (time / 60 < 1 && !recur) {
+        return '0:' + timeString
+      } else if (time / 60 < 1) {
+        return timeString
+      } else {
+        return this.parseTime(time / 60, true) + ':' + timeString
+      }
+    }
 
     mounted () {
       setInterval(() => {
