@@ -16,6 +16,13 @@ var db *gorm.DB
 var err error
 var once sync.Once
 
+var BeQuiet = &Media{
+	ID: "bequiet",
+	Length: 3710000000,
+	Title: "Please Be Quiet!",
+	Type: "internal",
+}
+
 func GetDatabase() (*gorm.DB, error) {
 	once.Do(func() {
 		dbHost := viper.GetString(constants.DBHOST)
@@ -32,6 +39,7 @@ func GetDatabase() (*gorm.DB, error) {
 			return
 		}
 		db.AutoMigrate(&Media{})
+		db.FirstOrCreate(BeQuiet)
 	})
 	return db, err
 }

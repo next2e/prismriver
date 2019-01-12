@@ -68,3 +68,7 @@
 [[constraint]]
   branch = "master"
   name = "gitlab.com/ttpcodes/youtube-dl-go"
+
+[[constraint]]
+  name = "github.com/gobuffalo/packr"
+  version = "1.21.9"
