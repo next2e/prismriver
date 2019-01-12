@@ -52,7 +52,8 @@ func (q *Queue) Add(media db.Media) {
 
 	dataDir := viper.GetString(constants.DATA)
 	filePath := path.Join(dataDir, media.ID+".opus")
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+	_, err := os.Stat(filePath)
+	if item.Media.Type != "internal" && os.IsNotExist(err) {
 		item.UpdateDownload(true, 0)
 		progressChan, doneChan, err := sources.GetVideo(media.ID)
 		if err != nil {
@@ -88,6 +89,26 @@ func (q *Queue) Advance() {
 		go player.Play(q.items[0])
 	}
 	go q.sendQueueUpdate()
+}
+
+func (q *Queue) BeQuiet() {
+	if len(q.items) == 0 {
+		q.Add(*db.BeQuiet)
+		return
+	}
+	quietQueue := make([]*QueueItem, 0)
+	quietItem := &QueueItem{
+		Downloading: false,
+		Media: *db.BeQuiet,
+		ready: make(chan struct{}),
+		queue: q,
+	}
+	close(quietItem.ready)
+	quietQueue = append(quietQueue, q.items[0], quietItem)
+	quietQueue = append(quietQueue, q.items[1:]...)
+	q.items = quietQueue
+	player := GetPlayer()
+	player.Skip()
 }
 
 func (q *Queue) MoveDown(index int) {

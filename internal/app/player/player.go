@@ -103,7 +103,12 @@ func (p *Player) Play(item *QueueItem) error {
 	}()
 	p.State = LOADING
 	dataDir := viper.GetString(constants.DATA)
-	filePath := path.Join(dataDir, item.Media.ID+".opus")
+	var filePath string
+	if item.Media.Type == "internal" {
+		filePath = path.Join(dataDir, "internal", item.Media.ID+".opus")
+	} else {
+		filePath = path.Join(dataDir, item.Media.ID+".opus")
+	}
 	<- item.ready
 
 	defer vlc.Release()

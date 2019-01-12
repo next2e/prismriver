@@ -7,6 +7,12 @@ import (
 
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
+	quiet := r.Form.Get("quiet")
+	if len(quiet) > 0 {
+		queue := player.GetQueue()
+		queue.BeQuiet()
+		return
+	}
 	volume := r.Form.Get("volume")
 	if len(volume) > 0 {
 		player := player.GetPlayer()
