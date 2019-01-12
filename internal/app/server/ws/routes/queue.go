@@ -44,6 +44,7 @@ func WebsocketQueueHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.Error("Error when upgrading client to WS connection:")
 		logrus.Error(err)
+		return
 	}
 	client := &ws.Client{
 		Conn: conn,
