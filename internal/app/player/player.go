@@ -179,7 +179,9 @@ func (p *Player) UpVolume() {
 		return
 	}
 	p.Volume += 5
-	p.player.SetVolume(p.Volume)
+	if p.State == PLAYING {
+		p.player.SetVolume(p.Volume)
+	}
 }
 
 func (p *Player) DownVolume() {
@@ -187,7 +189,9 @@ func (p *Player) DownVolume() {
 		return
 	}
 	p.Volume -= 5
-	p.player.SetVolume(p.Volume)
+	if p.State == PLAYING {
+		p.player.SetVolume(p.Volume)
+	}
 }
 
 func (p Player) sendPlayerUpdate() {
