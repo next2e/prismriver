@@ -34,6 +34,7 @@ type PlayerState struct {
 	CurrentTime int
 	TotalTime int
 	State int
+	Volume int
 }
 
 func GetPlayer() *Player {
@@ -74,6 +75,7 @@ func (p Player) GenerateResponse() []byte {
 			CurrentTime: currentTime,
 			State: p.State,
 			TotalTime: totalTime,
+			Volume: p.Volume,
 		})
 		if err != nil {
 			logrus.Error("Error generating JSON response:")
@@ -85,6 +87,7 @@ func (p Player) GenerateResponse() []byte {
 			CurrentTime: 0,
 			State: p.State,
 			TotalTime: 0,
+			Volume: p.Volume,
 		})
 		if err != nil {
 			logrus.Error("Error generating JSON response:")
@@ -182,6 +185,7 @@ func (p *Player) UpVolume() {
 	if p.State == PLAYING {
 		p.player.SetVolume(p.Volume)
 	}
+	p.sendPlayerUpdate()
 }
 
 func (p *Player) DownVolume() {
@@ -192,6 +196,7 @@ func (p *Player) DownVolume() {
 	if p.State == PLAYING {
 		p.player.SetVolume(p.Volume)
 	}
+	p.sendPlayerUpdate()
 }
 
 func (p Player) sendPlayerUpdate() {
