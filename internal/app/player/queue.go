@@ -24,7 +24,7 @@ type QueueItem struct {
 	Downloading bool
 	DownloadProgress float64
 	Media db.Media
-	ready chan struct{}
+	ready chan bool
 	queue *Queue
 }
 
@@ -43,7 +43,7 @@ func (q *Queue) Add(media db.Media) {
 	item := &QueueItem{
 		Downloading: false,
 		Media: media,
-		ready: make(chan struct{}),
+		ready: make(chan bool),
 		queue: q,
 	}
 	q.items = append(q.items, item)
@@ -68,11 +68,15 @@ func (q *Queue) Add(media db.Media) {
 			}
 			<- doneChan
 			item.UpdateDownload(false, 100)
-			item.ready <- struct{}{}
+			item.ready <- true
 			close(item.ready)
 		}()
 	} else {
-		close(item.ready)
+		logrus.Debug("Queue item ready. Sending on channel.")
+		go func() {
+			item.ready <- true
+			close(item.ready)
+		}()
 	}
 	player := GetPlayer()
 	if player.State == STOPPED && length == 1 {
@@ -83,7 +87,7 @@ func (q *Queue) Add(media db.Media) {
 }
 
 func (q *Queue) Advance() {
-	q.items = append(q.items[:0], q.items[1:]...)
+	q.items = q.items[1:]
 	if len(q.items) > 0 {
 		player := GetPlayer()
 		go player.Play(q.items[0])
@@ -100,9 +104,10 @@ func (q *Queue) BeQuiet() {
 	quietItem := &QueueItem{
 		Downloading: false,
 		Media: *db.BeQuiet,
-		ready: make(chan struct{}),
+		ready: make(chan bool),
 		queue: q,
 	}
+	quietItem.ready <- true
 	close(quietItem.ready)
 	quietQueue = append(quietQueue, q.items[0], quietItem)
 	quietQueue = append(quietQueue, q.items[1:]...)

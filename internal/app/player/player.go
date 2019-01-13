@@ -112,7 +112,12 @@ func (p *Player) Play(item *QueueItem) error {
 	} else {
 		filePath = path.Join(dataDir, item.Media.ID+".opus")
 	}
-	<- item.ready
+	ready := <- item.ready
+
+	if !ready {
+		logrus.Warn("Item labeled as not ready, not playing.")
+		return nil
+	}
 
 	defer vlc.Release()
 
@@ -174,6 +179,9 @@ func (p *Player) Skip() {
 	logrus.Debug("")
 	if p.State == PLAYING {
 		p.doneChan <- true
+	} else {
+		queue := GetQueue()
+		queue.items[0].ready <- false
 	}
 }
 
