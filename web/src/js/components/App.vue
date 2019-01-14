@@ -51,23 +51,28 @@
       })
     }
 
+    connectWS() {
+      this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+          window.location.hostname + '/ws/queue')
+
+      this.socket.addEventListener('close', () => {
+        this.queueWS = 0
+      })
+      this.socket.addEventListener('error', () => {
+        this.queueWS = 2
+      })
+      this.socket.addEventListener('message', (event) => {
+        this.queueWS = 1
+        const queue = JSON.parse(event.data)
+        this.queue = queue
+      })
+    }
+
     mounted () {
+      this.connectWS()
       setInterval(() => {
         if (this.playerWS === 0) {
-          this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-              window.location.hostname + '/ws/queue')
-
-          this.socket.addEventListener('close', () => {
-            this.queueWS = 0
-          })
-          this.socket.addEventListener('error', () => {
-            this.queueWS = 2
-          })
-          this.socket.addEventListener('message', (event) => {
-            this.queueWS = 1
-            const queue = JSON.parse(event.data)
-            this.queue = queue
-          })
+          this.connectWS()
         }
       }, 5000)
     }

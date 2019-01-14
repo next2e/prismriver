@@ -11,7 +11,7 @@
     <div class="skipDiv">
       <button id="skipButton" class="hvr-shutter-out-horizontal" @click="skip"><span class="glyphicon glyphicon-forward"></span>Skip song</button>
     </div>
-    <div class="volumeDiv">
+    <p class="volumeDiv">
       <p class="noMargin">
         Volume:
         <button id="voldown" class="hvr-bounce-to-left" @click="volDown"><span class="glyphicon glyphicon-volume-down"></span></button>
@@ -42,6 +42,26 @@
 
     @Prop(Object) item!: IMedia
 
+    connectWS () {
+      this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
+          window.location.hostname + '/ws/player')
+
+      this.socket.addEventListener('close', () => {
+        this.ws = 0
+      })
+      this.socket.addEventListener('error', () => {
+        this.ws = 2
+      })
+      this.socket.addEventListener('message', (event) => {
+        this.ws = 1
+        const data = JSON.parse(event.data)
+        this.currentTime = data.CurrentTime
+        this.state = data.State
+        this.totalTime = data.TotalTime
+        this.volume = data.Volume
+      })
+    }
+
     parseTime (time: number, recur: boolean = false): string {
       time = Math.floor(time)
       let timeString = ''
@@ -56,6 +76,7 @@
     }
 
     mounted () {
+      this.connectWS()
       setInterval(() => {
         if (this.state === 1) {
           this.currentTime += 1000
@@ -64,23 +85,7 @@
 
       setInterval(() => {
         if (this.ws === 0) {
-          this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-              window.location.hostname + '/ws/player')
-
-          this.socket.addEventListener('close', () => {
-            this.ws = 0
-          })
-          this.socket.addEventListener('error', () => {
-            this.ws = 2
-          })
-          this.socket.addEventListener('message', (event) => {
-            this.ws = 1
-            const data = JSON.parse(event.data)
-            this.currentTime = data.CurrentTime
-            this.state = data.State
-            this.totalTime = data.TotalTime
-            this.volume = data.Volume
-          })
+          this.connectWS()
         }
       }, 5000)
     }
