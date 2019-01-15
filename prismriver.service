@@ -1,0 +1,12 @@
+[Unit]
+Description=A revamped communal music player.
+After=postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/prismriver
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
