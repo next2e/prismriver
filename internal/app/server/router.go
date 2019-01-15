@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
 	"github.com/sirupsen/logrus"
 	"gitlab.com/ttpcodes/prismriver/internal/app/server/routes/media"
 	"gitlab.com/ttpcodes/prismriver/internal/app/server/routes/player"
@@ -14,7 +13,8 @@ import (
 	"os/signal"
 	"time"
 
-	_ "gitlab.com/ttpcodes/prismriver/statik"
+	//
+	"gitlab.com/ttpcodes/prismriver/web/dist"
 )
 
 func CreateRouter() {
@@ -31,13 +31,9 @@ func CreateRouter() {
 	r.HandleFunc("/ws/player", routes.WebsocketPlayerHandler)
 	r.HandleFunc("/ws/queue", routes.WebsocketQueueHandler)
 
-	statikFS, err := fs.New()
-	if err != nil {
-		logrus.Error("Error on loading static assets:")
-		logrus.Error(err)
-	}
+	fileServer := http.FileServer(dist.HTTP)
 
-	r.PathPrefix("/").Handler(http.FileServer(statikFS))
+	r.PathPrefix("/").Handler(fileServer)
 
 	srv := &http.Server{
 		Addr:         "0.0.0.0:80",

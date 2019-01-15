@@ -1,0 +1,10 @@
+{
+  "pkg": "assets",
+  "dest": "./assets/",
+  "custom": [
+    {
+      "base": "assets",
+      "files": ["./assets/"]
+    }
+  ]
+}

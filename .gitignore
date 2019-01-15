@@ -2,3 +2,6 @@ dist/
 node_modules/
 statik/
 vendor/
+
+ab0x.go
+prismriver

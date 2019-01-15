@@ -1,0 +1,10 @@
+{
+  "pkg": "dist",
+  "dest": "./web/dist/",
+  "custom": [
+    {
+      "base": "web/dist",
+      "files": ["./web/dist/"]
+    }
+  ]
+}

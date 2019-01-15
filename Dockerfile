@@ -1,4 +1,4 @@
-FROM golang:1.10.5-alpine3.8 as build
+FROM golang:1.11.4-alpine3.8 as build
 
 RUN apk add --no-cache dep
 RUN apk add --no-cache gcc
@@ -7,7 +7,7 @@ RUN apk add --no-cache libc-dev
 RUN apk add --no-cache make
 RUN apk add --no-cache vlc-dev
 RUN apk add --no-cache yarn
-RUN go get github.com/rakyll/statik
+RUN go get -u github.com/UnnoTed/fileb0x
 
 COPY . /go/src/gitlab.com/ttpcodes/prismriver
 

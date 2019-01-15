@@ -50,10 +50,6 @@
   version = "1.6.2"
 
 [[constraint]]
-  name = "github.com/rakyll/statik"
-  version = "0.1.5"
-
-[[constraint]]
   name = "github.com/gorilla/websocket"
   version = "1.4.0"
 
@@ -68,7 +64,3 @@
 [[constraint]]
   branch = "master"
   name = "gitlab.com/ttpcodes/youtube-dl-go"
-
-[[constraint]]
-  name = "github.com/gobuffalo/packr"
-  version = "1.21.9"
