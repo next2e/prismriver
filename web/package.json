@@ -31,6 +31,7 @@
     "vue-class-component": "^6.3.2"
   },
   "scripts": {
-    "build": "./node_modules/.bin/webpack"
+    "build": "./node_modules/.bin/webpack --mode=production",
+    "dev": "./node_modules/.bin/webpack --mode=development"
   }
 }
