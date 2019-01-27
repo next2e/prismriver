@@ -8,6 +8,7 @@ import 'bootstrap'
 
 import App from './components/App.vue'
 import Player from './components/Player.vue'
+import ProgressBar from './components/ProgressBar.vue'
 import QueueItem from './components/QueueItem.vue'
 import SearchForm from './components/SearchForm.vue'
 import SearchItem from './components/SearchItem.vue'
@@ -17,6 +18,7 @@ import '../css/app.css'
 
 $(() => {
   Vue.component('player', Player)
+  Vue.component('progress-bar', ProgressBar)
   Vue.component('queue-item', QueueItem)
   Vue.component('search-form', SearchForm)
   Vue.component('search-item', SearchItem)
