@@ -8,6 +8,7 @@
     </span>
     <div v-if="item.Downloading" class="progress" style="margin-top: 8px; height: 2vh; font-size: 12px; text-align: center; line-height: 100%;">
       <div class="progress-bar" :class="item.DownloadProgress < 50 ? 'progress-bar-info' : 'progress-bar-success'" style="min-width: 2vw;" :style="{width: item.DownloadProgress + '%'}"></div>
+      <p style="text-align: center; width: 100%; position: absolute;">{{ downloadText() }}</p>
     </div>
   </li>
 </template>
@@ -36,6 +37,14 @@
         type: 'PUT',
         url: '/queue/' + this.index
       })
+    }
+
+    downloadText () {
+      if (this.item.DownloadProgress < 50) {
+        return 'Downloading (' + Math.floor(this.item.DownloadProgress) + '%)'
+      } else {
+        return 'Transcoding (' + Math.floor(this.item.DownloadProgress) + '%)'
+      }
     }
 
     up () {
