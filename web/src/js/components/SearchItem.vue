@@ -21,7 +21,7 @@
 
     queue (): void {
       this.showMessage('Adding ' + this.title)
-      $.post('/queue', { id: this.id, type: this.type })
+      $.post(window.location.toString() + '/queue', { id: this.id, type: this.type })
     }
   }
 </script>

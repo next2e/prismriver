@@ -42,7 +42,7 @@
 
     connectWS () {
       this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-          window.location.hostname + '/ws/player')
+          window.location.host + window.location.pathname + '/ws/player')
 
       this.socket.addEventListener('close', () => {
         this.ws = 0
@@ -97,7 +97,7 @@
       $((event.target as Object)).blur()
       $.ajax({
         type: 'DELETE',
-        url: '/queue/0'
+        url: window.location.toString() + '/queue/0'
       })
     }
 
@@ -106,7 +106,7 @@
       $.ajax({
         data: { volume: 'down' },
         type: 'PUT',
-        url: '/player'
+        url: window.location.toString() + '/player'
       })
     }
 
@@ -115,7 +115,7 @@
       $.ajax({
         data: { volume: 'up' },
         type: 'PUT',
-        url: '/player'
+        url: window.location.toString() + '/player'
       })
     }
   }
