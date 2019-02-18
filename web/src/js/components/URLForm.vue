@@ -24,8 +24,8 @@
     random (event: Event) {
       $((event.target as Object)).blur()
       this.showMessage('Adding a random song')
-      $.getJSON('/media/random', { limit: 1 }, (data: [{ ID: number, Type: string }]) => {
-        $.post('/queue', {
+      $.getJSON(window.location.toString() + '/media/random', { limit: 1 }, (data: [{ ID: number, Type: string }]) => {
+        $.post(window.location.toString() + '/queue', {
           id: data[0].ID,
           type: data[0].Type
         })
@@ -33,7 +33,7 @@
     }
 
     submit () {
-      $.post('/queue', { url: this.url })
+      $.post(window.location.toString() + '/queue', { url: this.url })
       this.showMessage('Submitted! Now downloading song...')
       this.url = ''
     }

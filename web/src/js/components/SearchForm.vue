@@ -26,25 +26,25 @@
     results = []
 
     mounted () {
-      $.getJSON('/media/random', { limit: 20 }, (json) => {
+      $.getJSON(window.location.toString() + '/media/random', { limit: 20 }, (json) => {
         this.results = json
       })
     }
 
     shuffle (event: Event) {
       $((event.target as Object)).blur()
-      $.getJSON('/media/random', { limit: 20 }, (json) => {
+      $.getJSON(window.location.toString() + '/media/random', { limit: 20 }, (json) => {
         this.results = json
       })
     }
 
     submit (): void {
       if (this.query.length) {
-        $.getJSON('/media/search', { query: this.query }, (json) => {
+        $.getJSON(window.location.toString() + '/media/search', { query: this.query }, (json) => {
           this.results = json
         })
       } else {
-        $.getJSON('/media/random', { limit: 20 }, (json) => {
+        $.getJSON(window.location.toString() + '/media/random', { limit: 20 }, (json) => {
           this.results = json
         })
       }

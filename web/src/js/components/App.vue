@@ -47,13 +47,13 @@
       $.ajax({
         data: { quiet: 'true' },
         type: 'PUT',
-        url: '/player'
+        url: window.location.toString() + '/player'
       })
     }
 
     connectWS() {
       this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-          window.location.hostname + '/ws/queue')
+          window.location.host + window.location.pathname + '/ws/queue')
 
       this.socket.addEventListener('close', () => {
         this.queueWS = 0

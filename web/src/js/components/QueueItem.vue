@@ -24,7 +24,7 @@
     deleteSong () {
       $.ajax({
         type: 'DELETE',
-        url: '/queue/' + this.index
+        url: window.location.toString() + '/queue/' + this.index
       })
     }
 
@@ -32,7 +32,7 @@
       $.ajax({
         data: { move: 'down' },
         type: 'PUT',
-        url: '/queue/' + this.index
+        url: window.location.toString() + '/queue/' + this.index
       })
     }
 
@@ -40,7 +40,7 @@
       $.ajax({
         data: { move: 'up' },
         type: 'PUT',
-        url: '/queue/' + this.index
+        url:window.location.toString() + '/queue/' + this.index
       })
     }
   }

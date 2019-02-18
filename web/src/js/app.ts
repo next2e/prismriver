@@ -45,6 +45,6 @@ $(() => {
   })
   $('#quietButton').on('click', () => {
     $('#quietButton').blur()
-    $.get('/quiet')
+    $.get(window.location.toString() + '/quiet')
   })
 })
