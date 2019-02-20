@@ -23,30 +23,38 @@
   @Component
   export default class SearchForm extends Vue {
     query = ''
-    results = []
+    results: IMedia[] = []
+
+    getRandomSearch () {
+      const params = new URLSearchParams()
+      params.set('limit', '20')
+      fetch('media/random?' + params.toString()).then((response) => {
+        return response.json()
+      }).then((json) => {
+        this.results = json as IMedia[]
+      })
+    }
 
     mounted () {
-      $.getJSON(window.location.toString() + '/media/random', { limit: 20 }, (json) => {
-        this.results = json
-      })
+      this.getRandomSearch()
     }
 
     shuffle (event: Event) {
       $((event.target as Object)).blur()
-      $.getJSON(window.location.toString() + '/media/random', { limit: 20 }, (json) => {
-        this.results = json
-      })
+      this.getRandomSearch()
     }
 
     submit (): void {
       if (this.query.length) {
-        $.getJSON(window.location.toString() + '/media/search', { query: this.query }, (json) => {
-          this.results = json
+        const params = new URLSearchParams()
+        params.set('query', this.query)
+        fetch('media/search?' + params.toString()).then((response) => {
+          return response.json()
+        }).then((json) => {
+          this.results = json as IMedia[]
         })
       } else {
-        $.getJSON(window.location.toString() + '/media/random', { limit: 20 }, (json) => {
-          this.results = json
-        })
+        this.getRandomSearch()
       }
     }
 

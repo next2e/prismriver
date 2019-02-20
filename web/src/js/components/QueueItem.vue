@@ -11,7 +11,6 @@
 </template>
 
 <script lang="ts">
-  import $ from 'jquery'
   import { Component, Prop, Vue } from 'vue-property-decorator'
 
   @Component
@@ -22,25 +21,26 @@
     @Prop(Object) item!: IQueueItem
 
     deleteSong () {
-      $.ajax({
-        type: 'DELETE',
-        url: window.location.toString() + '/queue/' + this.index
+      fetch('queue/' + this.index, {
+        method: 'DELETE'
       })
     }
 
     down () {
-      $.ajax({
-        data: { move: 'down' },
-        type: 'PUT',
-        url: window.location.toString() + '/queue/' + this.index
+      const params = new URLSearchParams()
+      params.set('move', 'down')
+      fetch('queue/' + this.index, {
+        body: params,
+        method: 'PUT'
       })
     }
 
     up () {
-      $.ajax({
-        data: { move: 'up' },
-        type: 'PUT',
-        url:window.location.toString() + '/queue/' + this.index
+      const params = new URLSearchParams()
+      params.set('move', 'up')
+      fetch('queue/' + this.index, {
+        body: params,
+        method: 'PUT'
       })
     }
   }
