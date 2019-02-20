@@ -7,14 +7,14 @@ import (
 	"os"
 	"path"
 
-	"github.com/rylio/ytdl"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/xfrr/goffmpeg/transcoder"
 )
 
 func GetInfo(query string) (db.Media, error) {
-	info, err := ytdl.GetVideoInfo(query)
+	downloader := youtubedl.NewDownloader(query)
+	info, err := downloader.GetInfo()
 	if err != nil {
 		logrus.Error("Error retrieving video info:")
 		logrus.Error(err)
@@ -22,14 +22,15 @@ func GetInfo(query string) (db.Media, error) {
 	}
 	return db.Media{
 		ID: info.ID,
-		Length: uint64(info.Duration),
+		Length: uint64(info.Duration * 1000000),
 		Title: info.Title,
 		Type: "youtube",
 	}, nil
 }
 
 func GetVideo(query string) (chan float64, chan struct{}, error) {
-	info, err := ytdl.GetVideoInfoFromID(query)
+	downloader := youtubedl.NewDownloader(query)
+	info, err := downloader.GetInfo()
 	if err != nil {
 		logrus.Error("Error when loading video info")
 		logrus.Error(err)
