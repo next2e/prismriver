@@ -42,7 +42,7 @@
 
     connectWS () {
       this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-          window.location.host + window.location.pathname + '/ws/player')
+          window.location.host + (window.location.pathname === '/' ? '' : window.location.pathname) + '/ws/player')
 
       this.socket.addEventListener('close', () => {
         this.ws = 0
@@ -95,27 +95,28 @@
 
     skip (event: Event) {
       $((event.target as Object)).blur()
-      $.ajax({
-        type: 'DELETE',
-        url: window.location.toString() + '/queue/0'
+      fetch('queue/0', {
+        method: 'DELETE'
       })
     }
 
     volDown (event: Event) {
       $((event.target as Object)).blur()
-      $.ajax({
-        data: { volume: 'down' },
-        type: 'PUT',
-        url: window.location.toString() + '/player'
+      const params = new URLSearchParams()
+      params.set('volume', 'down')
+      fetch('player', {
+        body: params,
+        method: 'PUT'
       })
     }
 
     volUp (event: Event) {
       $((event.target as Object)).blur()
-      $.ajax({
-        data: { volume: 'up' },
-        type: 'PUT',
-        url: window.location.toString() + '/player'
+      const params = new URLSearchParams()
+      params.set('volume', 'up')
+      fetch('player', {
+        body: params,
+        method: 'PUT'
       })
     }
   }

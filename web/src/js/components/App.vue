@@ -32,7 +32,6 @@
 </template>
 
 <script lang="ts">
-  import $ from 'jquery'
   import { Component, Vue } from 'vue-property-decorator'
 
   @Component
@@ -44,16 +43,17 @@
     socket: WebSocket | undefined
 
     beQuiet () {
-      $.ajax({
-        data: { quiet: 'true' },
-        type: 'PUT',
-        url: window.location.toString() + '/player'
+      const params = new URLSearchParams()
+      params.set('quiet', 'true')
+      fetch('player', {
+        body: params,
+        method: 'PUT'
       })
     }
 
     connectWS() {
       this.socket = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-          window.location.host + window.location.pathname + '/ws/queue')
+          window.location.host + (window.location.pathname === '/' ? '' : window.location.pathname) + '/ws/queue')
 
       this.socket.addEventListener('close', () => {
         this.queueWS = 0

@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-  import $ from 'jquery'
   import { Component, Mixins, Prop } from 'vue-property-decorator'
 
   import ShowMessage from '../mixins/ShowMessage'
@@ -21,7 +20,13 @@
 
     queue (): void {
       this.showMessage('Adding ' + this.title)
-      $.post(window.location.toString() + '/queue', { id: this.id, type: this.type })
+      const params = new URLSearchParams()
+      params.set('id', this.id)
+      params.set('type', this.type)
+      fetch('queue', {
+        body: params,
+        method: 'POST'
+      })
     }
   }
 </script>
