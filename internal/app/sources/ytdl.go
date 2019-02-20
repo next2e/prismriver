@@ -50,13 +50,13 @@ func GetVideo(query string) (chan float64, chan struct{}, error) {
 			logrus.Debugf("Download is at %f percent completion", progress)
 			progressChan <- progress / 2
 		}
-		tmpPath := <- closeChan
+		result := <- closeChan
 		logrus.Debug("Downloaded media file")
 
 		trans := new(transcoder.Transcoder)
 		dataDir := viper.GetString(constants.DATA)
 		filePath := path.Join(dataDir, info.ID+".opus")
-		trans.Initialize(tmpPath, filePath)
+		trans.Initialize(result.Path, filePath)
 		trans.MediaFile().SetAudioCodec("libopus")
 		trans.MediaFile().SetSkipVideo(true)
 		logrus.Debug("Instantiated ffmpeg transcoder")
@@ -72,7 +72,7 @@ func GetVideo(query string) (chan float64, chan struct{}, error) {
 			logrus.Error(err)
 		}
 		logrus.Debug("Transcoded media to vorbis audio")
-		if err := os.Remove(tmpPath); err != nil {
+		if err := os.Remove(result.Path); err != nil {
 			logrus.Error("Error when removing temporary file")
 			logrus.Error(err)
 		}
