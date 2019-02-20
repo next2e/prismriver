@@ -96,6 +96,7 @@ func (q *Queue) Advance() {
 }
 
 func (q *Queue) BeQuiet() {
+	player := GetPlayer()
 	if len(q.items) == 0 {
 		q.Add(*db.BeQuiet)
 		return
@@ -104,7 +105,7 @@ func (q *Queue) BeQuiet() {
 	quietItem := &QueueItem{
 		Downloading: false,
 		Media: *db.BeQuiet,
-		ready: make(chan bool),
+		ready: make(chan bool, 1),
 		queue: q,
 	}
 	quietItem.ready <- true
@@ -112,7 +113,6 @@ func (q *Queue) BeQuiet() {
 	quietQueue = append(quietQueue, q.items[0], quietItem)
 	quietQueue = append(quietQueue, q.items[1:]...)
 	q.items = quietQueue
-	player := GetPlayer()
 	player.Skip()
 }
 

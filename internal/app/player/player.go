@@ -176,7 +176,6 @@ func (p *Player) Play(item *QueueItem) error {
 }
 
 func (p *Player) Skip() {
-	logrus.Debug("")
 	if p.State == PLAYING {
 		p.doneChan <- true
 	} else {
