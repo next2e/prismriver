@@ -100,6 +100,8 @@ func (q *Queue) BeQuiet() {
 	if len(q.items) == 0 {
 		q.Add(*db.BeQuiet)
 		return
+	} else if player.State == LOADING {
+		return
 	}
 	quietQueue := make([]*QueueItem, 0)
 	quietItem := &QueueItem{
