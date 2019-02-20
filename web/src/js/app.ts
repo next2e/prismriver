@@ -43,8 +43,4 @@ $(() => {
       return createElement('app')
     }
   })
-  $('#quietButton').on('click', () => {
-    $('#quietButton').blur()
-    $.get(window.location.toString() + '/quiet')
-  })
 })
