@@ -59,7 +59,7 @@ func FindMedia(query string, limit int) []Media {
 		logrus.Fatal("Error loading database:", err)
 	}
 	var media []Media
-	db.Limit(limit).Where("title ILIKE ?", "%"+query+"%").Find(&media)
+	db.Limit(limit).Where("title ILIKE ? AND type <> ?", "%"+query+"%", "internal").Find(&media)
 	return media
 }
 
@@ -82,6 +82,6 @@ func GetRandomMedia(limit int) []Media {
 		logrus.Fatal("Error loading database:", err)
 	}
 	var media []Media
-	db.Order("random()").Limit(limit).Find(&media)
+	db.Order("random()").Where("type <> ?", "internal").Limit(limit).Find(&media)
 	return media
 }
