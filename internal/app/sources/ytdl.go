@@ -28,19 +28,11 @@ func GetInfo(query string) (db.Media, error) {
 	}, nil
 }
 
-func GetVideo(query string) (chan float64, chan error, error) {
-	downloader := youtubedl.NewDownloader(query)
-	info, err := downloader.GetInfo()
-	if err != nil {
-		logrus.Error("Error when loading video info")
-		logrus.Error(err)
-		return nil, nil, err
-	}
-	logrus.Debug("Retrieved video info")
+func GetVideo(id string) (chan float64, chan error, error) {
 	progressChan := make(chan float64)
 	doneChan := make(chan error)
 	go func() {
-		downloader := youtubedl.NewDownloader(query)
+		downloader := youtubedl.NewDownloader(id)
 		downloader.Output("/tmp/" + youtubedl.ID)
 		eventChan, closeChan, err := downloader.RunProgress()
 		if err != nil {
@@ -64,7 +56,7 @@ func GetVideo(query string) (chan float64, chan error, error) {
 
 		trans := new(transcoder.Transcoder)
 		dataDir := viper.GetString(constants.DATA)
-		filePath := path.Join(dataDir, info.ID+".opus")
+		filePath := path.Join(dataDir, id + ".opus")
 		err = trans.Initialize(result.Path, filePath)
 		if err != nil {
 			logrus.Error("Error starting transcoding process:\n", err)
@@ -95,7 +87,7 @@ func GetVideo(query string) (chan float64, chan error, error) {
 			// We don't return here because even if the temporary file isn't deleted, we successfully got the audio.
 		}
 		logrus.Debug("Removed temporary audio file")
-		logrus.Infof("Downloaded new audio file for YouTube video ID %s", info.ID)
+		logrus.Infof("Downloaded new audio file for YouTube video ID %s", id)
 		close(progressChan)
 		doneChan <- nil
 		close(doneChan)
