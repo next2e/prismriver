@@ -66,7 +66,9 @@ func (q *Queue) Add(media db.Media) {
 			for progress := range progressChan {
 				item.UpdateDownload(true, progress)
 			}
-			<- doneChan
+			if err := <- doneChan; err != nil {
+				item.UpdateDownload(false, 100)
+			}
 			item.UpdateDownload(false, 100)
 			item.ready <- true
 			close(item.ready)
