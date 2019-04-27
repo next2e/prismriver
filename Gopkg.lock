@@ -197,11 +197,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:967c2e0ca3ac991838b0608a53bf2aab3e45e10770cb49e702a545d08f3a5919"
+  digest = "1:609dfacec52232ed01fa9fa14ce9aa561fcccf8f4354cf70ac8ab6f2c7dfeb36"
   name = "gitlab.com/ttpcodes/youtube-dl-go"
   packages = ["."]
   pruneopts = "UT"
-  revision = "7ccd1d5eae76521ada8e92f334d7cc39d74dedf1"
+  revision = "083de2730204e3da9389bbd792ca5ca9d21975b8"
 
 [[projects]]
   branch = "master"
