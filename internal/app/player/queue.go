@@ -15,19 +15,36 @@ import (
 var queueInstance *Queue
 var queueOnce sync.Once
 
+// Download represents a download occurring for a QueueItem.
+type Download struct {
+	doneCh   chan struct{}
+	err      string
+	progress int
+}
+
 // Queue represents a queue of Media items waiting to be played.
 type Queue struct {
-	items  []*QueueItem
-	Update chan []byte
+	sync.RWMutex
+
+	downloads map[string]*Download
+	items     []*QueueItem
+	Update    chan []byte
 }
 
 // QueueItem represents a Media item waiting to be played in the Queue.
 type QueueItem struct {
-	Downloading      bool
-	DownloadProgress float64
-	Media            db.Media
-	ready            chan bool
-	queue            *Queue
+	err   string
+	Media db.Media
+	ready chan bool
+	queue *Queue
+}
+
+// QueueItemResponse represents a QueueItem containing the necessary fields to be exported via JSON.
+type QueueItemResponse struct {
+	Downloading bool     `json:"downloading"`
+	Error       string   `json:"error"`
+	Media       db.Media `json:"media"`
+	Progress    int      `json:"progress"`
 }
 
 // GetQueue returns the single Queue instance of the application.
@@ -35,8 +52,9 @@ func GetQueue() *Queue {
 	queueOnce.Do(func() {
 		logrus.Info("Created queue instance.")
 		queueInstance = &Queue{
-			items:  make([]*QueueItem, 0),
-			Update: make(chan []byte),
+			downloads: make(map[string]*Download),
+			items:     make([]*QueueItem, 0),
+			Update:    make(chan []byte),
 		}
 	})
 	return queueInstance
@@ -46,10 +64,9 @@ func GetQueue() *Queue {
 // a download of the Media.
 func (q *Queue) Add(media db.Media) {
 	item := &QueueItem{
-		Downloading: false,
-		Media:       media,
-		ready:       make(chan bool),
-		queue:       q,
+		Media: media,
+		ready: make(chan bool),
+		queue: q,
 	}
 	q.items = append(q.items, item)
 	length := len(q.items)
@@ -59,25 +76,61 @@ func (q *Queue) Add(media db.Media) {
 	filePath := path.Join(dataDir, media.ID+".opus")
 	_, err := os.Stat(filePath)
 	if item.Media.Type != "internal" && os.IsNotExist(err) {
-		item.UpdateDownload(true, 0)
-		progressChan, doneChan, err := sources.GetVideo(media.ID)
-		if err != nil {
-			logrus.Error("Error when getting sources:")
-			logrus.Error(err)
-			return
-		}
+		// Read of downloads and assignment to map must be done together or another lock might get hold of it.
+		q.Lock()
+		if download, ok := q.downloads[item.Media.ID]; ok {
+			q.Unlock()
+			go func() {
+				<-download.doneCh
+				if download.err != "" {
+					item.err = download.err
+					q.sendQueueUpdate()
+					return
+				}
+				item.ready <- true
+				close(item.ready)
+			}()
+		} else {
+			download := &Download{
+				doneCh: make(chan struct{}),
+			}
+			q.downloads[item.Media.ID] = download
+			q.Unlock()
 
-		go func() {
-			for progress := range progressChan {
-				item.UpdateDownload(true, progress)
+			q.sendQueueUpdate()
+			progressChan, doneChan, err := sources.GetVideo(media.ID)
+			if err != nil {
+				logrus.Error("Error when getting sources:")
+				logrus.Error(err)
+				return
 			}
-			if err := <-doneChan; err != nil {
-				item.UpdateDownload(false, 100)
-			}
-			item.UpdateDownload(false, 100)
-			item.ready <- true
-			close(item.ready)
-		}()
+
+			go func() {
+				for progress := range progressChan {
+					q.Lock()
+					download.progress = int(progress)
+					q.Unlock()
+					q.sendQueueUpdate()
+				}
+				if err := <-doneChan; err != nil {
+					q.Lock()
+					download.err = err.Error()
+					item.err = err.Error()
+					delete(q.downloads, item.Media.ID)
+					q.Unlock()
+					close(download.doneCh)
+					q.sendQueueUpdate()
+					return
+				}
+				q.Lock()
+				delete(q.downloads, item.Media.ID)
+				q.Unlock()
+				close(download.doneCh)
+				q.sendQueueUpdate()
+				item.ready <- true
+				close(item.ready)
+			}()
+		}
 	} else {
 		logrus.Debug("Queue item ready. Sending on channel.")
 		go func() {
@@ -114,10 +167,9 @@ func (q *Queue) BeQuiet() {
 	}
 	quietQueue := make([]*QueueItem, 0)
 	quietItem := &QueueItem{
-		Downloading: false,
-		Media:       *db.BeQuiet,
-		ready:       make(chan bool, 1),
-		queue:       q,
+		Media: *db.BeQuiet,
+		ready: make(chan bool, 1),
+		queue: q,
 	}
 	quietItem.ready <- true
 	close(quietItem.ready)
@@ -150,8 +202,16 @@ func (q *Queue) MoveUp(index int) {
 }
 
 // GenerateResponse generates a JSON response of all the QueueItems in the Queue.
-func (q Queue) GenerateResponse() []byte {
-	response, err := json.Marshal(q.items)
+func (q *Queue) GenerateResponse() []byte {
+	// Cannot return a nil slice or the frontend will have issues.
+	items := make([]QueueItemResponse, 0)
+	q.RLock()
+	for _, item := range q.items {
+		response := item.GenerateResponse()
+		items = append(items, response)
+	}
+	q.RUnlock()
+	response, err := json.Marshal(items)
 	if err != nil {
 		logrus.Error("Error generating JSON response:")
 		logrus.Error(err)
@@ -160,7 +220,7 @@ func (q Queue) GenerateResponse() []byte {
 }
 
 // GetItems returns the QueueItems in the Queue.
-func (q Queue) GetItems() []*QueueItem {
+func (q *Queue) GetItems() []*QueueItem {
 	return q.items
 }
 
@@ -170,14 +230,27 @@ func (q *Queue) Remove(index int) {
 	go q.sendQueueUpdate()
 }
 
-func (q Queue) sendQueueUpdate() {
+func (q *Queue) sendQueueUpdate() {
 	response := q.GenerateResponse()
 	q.Update <- response
 }
 
-// UpdateDownload updates the download information of a particular QueueItem.
-func (q *QueueItem) UpdateDownload(downloading bool, progress float64) {
-	q.Downloading = downloading
-	q.DownloadProgress = progress
-	go q.queue.sendQueueUpdate()
+// GenerateResponse returns the QueueItemResponse form of the QueueItem.
+func (q QueueItem) GenerateResponse() QueueItemResponse {
+	downloading, progress := q.Progress()
+	return QueueItemResponse{
+		Downloading: downloading,
+		Error:       q.err,
+		Media:       q.Media,
+		Progress:    progress,
+	}
+}
+
+// Progress returns the download progress of the QueueItem.
+func (q QueueItem) Progress() (bool, int) {
+	download, ok := q.queue.downloads[q.Media.ID]
+	if !ok {
+		return false, 100
+	}
+	return true, download.progress
 }
