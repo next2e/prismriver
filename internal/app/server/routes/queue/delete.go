@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// DeleteHandler handles requests for deleting QueueItems.
 func DeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	index, err := strconv.ParseUint(vars["id"], 10, 8)

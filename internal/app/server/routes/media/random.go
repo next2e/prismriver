@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// RandomHandler handles requests to add a random Media to the Queue.
 func RandomHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	str := query.Get("limit")

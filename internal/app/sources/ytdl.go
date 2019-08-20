@@ -12,6 +12,7 @@ import (
 	"github.com/xfrr/goffmpeg/transcoder"
 )
 
+// GetInfo retrieves the info for the YouTube video and returns it as a Media item, or an error if encountered.
 func GetInfo(query string) (db.Media, error) {
 	downloader := youtubedl.NewDownloader(query)
 	info, err := downloader.GetInfo()
@@ -28,6 +29,8 @@ func GetInfo(query string) (db.Media, error) {
 	}, nil
 }
 
+// GetVideo attempts to download a YouTube video specified by id. It will return channels that can be used to track
+// the progress of the download and any errors encountered when the process finishes.
 func GetVideo(id string) (chan float64, chan error, error) {
 	progressChan := make(chan float64)
 	doneChan := make(chan error)

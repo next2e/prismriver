@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// IndexHandler handles requests for listing all QueueItems.
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	queue := player.GetQueue()
 	response := queue.GenerateResponse()

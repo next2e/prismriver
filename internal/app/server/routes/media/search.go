@@ -7,6 +7,7 @@ import (
 	"net/http"
 )
 
+// SearchHandler handles requests to search for Media in the database.
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	media := db.FindMedia(query.Get("query"), 20)

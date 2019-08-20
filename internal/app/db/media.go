@@ -2,6 +2,7 @@ package db
 
 import "time"
 
+// Media represents a Media item in the database.
 type Media struct {
 	ID        string `gorm:"primary_key"`
 	CreatedAt time.Time

@@ -20,6 +20,7 @@ var queueUpgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// GetQueueHub returns the single Hub instance used for handling Queue-related WebSocket requests.
 func GetQueueHub() *ws.Hub {
 	queueOnce.Do(func() {
 		queueHub = ws.CreateHub()
@@ -38,6 +39,7 @@ func GetQueueHub() *ws.Hub {
 	return queueHub
 }
 
+// WebsocketQueueHandler handles requests for getting Queue WebSocket updates.
 func WebsocketQueueHandler(w http.ResponseWriter, r *http.Request) {
 	GetQueueHub()
 	conn, err := queueUpgrader.Upgrade(w, r, nil)

@@ -4,6 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Hub represents a controller for handling all WebSocket communications.
 type Hub struct {
 	Broadcast  chan []byte
 	clients    map[*Client]bool
@@ -11,6 +12,7 @@ type Hub struct {
 	Unregister chan *Client
 }
 
+// CreateHub returns a new instance of Hub.
 func CreateHub() *Hub {
 	return &Hub{
 		Broadcast:  make(chan []byte),
@@ -20,6 +22,7 @@ func CreateHub() *Hub {
 	}
 }
 
+// Execute runs the main loop for handling WebSocket Hub events.
 func (h *Hub) Execute() {
 	logrus.Debug("Starting WS Hub executor.")
 	for {

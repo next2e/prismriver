@@ -15,13 +15,19 @@ var playerInstance *Player
 var playerOnce sync.Once
 var playerTicker *time.Ticker
 
+// Represents various states that the Player can exist in.
 const (
+	// STOPPED represents a stopped state when nothing is playing.
 	STOPPED = iota
+	// PLAYING represents a playing state.
 	PLAYING = iota
-	PAUSED  = iota
+	// PAUSED represents a paused state.
+	PAUSED = iota
+	// LOADING represents a loading state before playback begins.
 	LOADING = iota
 )
 
+// Player represents a player for Media items.
 type Player struct {
 	doneChan chan bool
 	player   *vlc.Player
@@ -30,13 +36,15 @@ type Player struct {
 	Volume   int
 }
 
-type PlayerState struct {
+// State represents status information about the Player, such as the time, state, and volume.
+type State struct {
 	CurrentTime int
 	TotalTime   int
 	State       int
 	Volume      int
 }
 
+// GetPlayer returns the single Player instance used by the application.
 func GetPlayer() *Player {
 	playerOnce.Do(func() {
 		playerInstance = &Player{
@@ -59,6 +67,7 @@ func GetPlayer() *Player {
 	return playerInstance
 }
 
+// GenerateResponse generates a JSON response representing the Player's current status.
 func (p Player) GenerateResponse() []byte {
 	if p.State == PLAYING {
 		currentTime, err := p.player.MediaTime()
@@ -71,7 +80,7 @@ func (p Player) GenerateResponse() []byte {
 			logrus.Error("Error getting player's media length:")
 			logrus.Error(err)
 		}
-		response, err := json.Marshal(PlayerState{
+		response, err := json.Marshal(State{
 			CurrentTime: currentTime,
 			State:       p.State,
 			TotalTime:   totalTime,
@@ -82,22 +91,22 @@ func (p Player) GenerateResponse() []byte {
 			logrus.Error(err)
 		}
 		return response
-	} else {
-		response, err := json.Marshal(PlayerState{
-			CurrentTime: 0,
-			State:       p.State,
-			TotalTime:   0,
-			Volume:      p.Volume,
-		})
-		if err != nil {
-			logrus.Error("Error generating JSON response:")
-			logrus.Error(err)
-		}
-		return response
 	}
 
+	response, err := json.Marshal(State{
+		CurrentTime: 0,
+		State:       p.State,
+		TotalTime:   0,
+		Volume:      p.Volume,
+	})
+	if err != nil {
+		logrus.Error("Error generating JSON response:")
+		logrus.Error(err)
+	}
+	return response
 }
 
+// Play begins playback on a QueueItem.
 func (p *Player) Play(item *QueueItem) error {
 	defer func() {
 		p.State = STOPPED
@@ -175,6 +184,7 @@ func (p *Player) Play(item *QueueItem) error {
 	return nil
 }
 
+// Skip skips the currently playing QueueItem in the Queue.
 func (p *Player) Skip() {
 	if p.State == PLAYING {
 		p.doneChan <- true
@@ -184,6 +194,7 @@ func (p *Player) Skip() {
 	}
 }
 
+// UpVolume increments the volume of the Player by 5, up to a maximum of 100.
 func (p *Player) UpVolume() {
 	if p.Volume == 100 {
 		return
@@ -195,6 +206,7 @@ func (p *Player) UpVolume() {
 	p.sendPlayerUpdate()
 }
 
+// DownVolume decrements the volume of the Player by 5, down to a minimum of 0.
 func (p *Player) DownVolume() {
 	if p.Volume == 0 {
 		return

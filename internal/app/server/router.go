@@ -17,6 +17,7 @@ import (
 	"gitlab.com/ttpcodes/prismriver/web/dist"
 )
 
+// CreateRouter creates the Router instance used for handling all incoming HTTP requests.
 func CreateRouter() {
 	wait := time.Duration(15)
 

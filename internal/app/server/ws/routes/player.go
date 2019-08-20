@@ -20,6 +20,7 @@ var playerUpgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// GetPlayerHub returns the single Hub instance used for handling Player-related WebSocket requests.
 func GetPlayerHub() *ws.Hub {
 	playerOnce.Do(func() {
 		playerHub = ws.CreateHub()
@@ -38,6 +39,7 @@ func GetPlayerHub() *ws.Hub {
 	return playerHub
 }
 
+// WebsocketPlayerHandler handles requests for getting Player WebSocket updates.
 func WebsocketPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	GetPlayerHub()
 	conn, err := playerUpgrader.Upgrade(w, r, nil)

@@ -15,11 +15,13 @@ import (
 var queueInstance *Queue
 var queueOnce sync.Once
 
+// Queue represents a queue of Media items waiting to be played.
 type Queue struct {
 	items  []*QueueItem
 	Update chan []byte
 }
 
+// QueueItem represents a Media item waiting to be played in the Queue.
 type QueueItem struct {
 	Downloading      bool
 	DownloadProgress float64
@@ -28,6 +30,7 @@ type QueueItem struct {
 	queue            *Queue
 }
 
+// GetQueue returns the single Queue instance of the application.
 func GetQueue() *Queue {
 	queueOnce.Do(func() {
 		logrus.Info("Created queue instance.")
@@ -39,6 +42,8 @@ func GetQueue() *Queue {
 	return queueInstance
 }
 
+// Add adds a new Media item to the Queue as a QueueItem. If the item is detected to not be ready, it will instantiate
+// a download of the Media.
 func (q *Queue) Add(media db.Media) {
 	item := &QueueItem{
 		Downloading: false,
@@ -88,6 +93,7 @@ func (q *Queue) Add(media db.Media) {
 	logrus.Info("Added " + media.Title + " to queue.")
 }
 
+// Advance moves the Queue up by one and plays the next item if it exists.
 func (q *Queue) Advance() {
 	q.items = q.items[1:]
 	if len(q.items) > 0 {
@@ -97,6 +103,7 @@ func (q *Queue) Advance() {
 	go q.sendQueueUpdate()
 }
 
+// BeQuiet replaces the currently playing item with the BeQuiet Media and plays it.
 func (q *Queue) BeQuiet() {
 	player := GetPlayer()
 	if len(q.items) == 0 {
@@ -120,6 +127,7 @@ func (q *Queue) BeQuiet() {
 	player.Skip()
 }
 
+// MoveDown moves a QueueItem down in the Queue.
 func (q *Queue) MoveDown(index int) {
 	if index == len(q.items)-1 {
 		return
@@ -130,6 +138,7 @@ func (q *Queue) MoveDown(index int) {
 	q.sendQueueUpdate()
 }
 
+// MoveUp moves a QueueItem up in the Queue.
 func (q *Queue) MoveUp(index int) {
 	if index == 1 {
 		return
@@ -140,6 +149,7 @@ func (q *Queue) MoveUp(index int) {
 	q.sendQueueUpdate()
 }
 
+// GenerateResponse generates a JSON response of all the QueueItems in the Queue.
 func (q Queue) GenerateResponse() []byte {
 	response, err := json.Marshal(q.items)
 	if err != nil {
@@ -149,10 +159,12 @@ func (q Queue) GenerateResponse() []byte {
 	return response
 }
 
+// GetItems returns the QueueItems in the Queue.
 func (q Queue) GetItems() []*QueueItem {
 	return q.items
 }
 
+// Remove removes a QueueItem from the Queue.
 func (q *Queue) Remove(index int) {
 	q.items = append(q.items[:index], q.items[index+1:]...)
 	go q.sendQueueUpdate()
@@ -163,6 +175,7 @@ func (q Queue) sendQueueUpdate() {
 	q.Update <- response
 }
 
+// UpdateDownload updates the download information of a particular QueueItem.
 func (q *QueueItem) UpdateDownload(downloading bool, progress float64) {
 	q.Downloading = downloading
 	q.DownloadProgress = progress

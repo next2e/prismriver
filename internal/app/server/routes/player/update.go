@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// UpdateHandler handles requests for changes to the Player, such as calling "Be Quiet!" or modifying the volume.
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	quiet := r.Form.Get("quiet")

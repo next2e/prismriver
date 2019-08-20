@@ -9,6 +9,7 @@ import (
 	"regexp"
 )
 
+// StoreHandler handles requests for adding new QueueItems.
 func StoreHandler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	id := r.Form.Get("id")

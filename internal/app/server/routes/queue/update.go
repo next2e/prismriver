@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// UpdateHandler handles requests for moving QueueItems around in the Queue.
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	index, err := strconv.ParseUint(vars["id"], 10, 8)

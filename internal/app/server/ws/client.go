@@ -14,6 +14,7 @@ const (
 	writeWait = 10 * time.Second
 )
 
+// Client represents an incoming WebSocket connection.
 type Client struct {
 	Conn *websocket.Conn
 
@@ -22,6 +23,7 @@ type Client struct {
 	Send chan []byte
 }
 
+// RunRead starts the read loop for the Client.
 func (c *Client) RunRead() {
 	defer func() {
 		c.Hub.Unregister <- c
@@ -37,6 +39,7 @@ func (c *Client) RunRead() {
 	}
 }
 
+// RunWrite starts the Write loop for the Client.
 func (c *Client) RunWrite() {
 	ticker := time.NewTicker(pingInterval)
 	defer func() {

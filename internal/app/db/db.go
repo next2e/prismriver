@@ -9,6 +9,7 @@ import (
 	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
 	"sync"
 
+	// Import Postgres dialect.
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
@@ -16,6 +17,7 @@ var db *gorm.DB
 var err error
 var once sync.Once
 
+// BeQuiet is built-in media used for the "Be Quiet!" feature.
 var BeQuiet = &Media{
 	ID:     "bequiet",
 	Length: 3710000000,
@@ -23,6 +25,7 @@ var BeQuiet = &Media{
 	Type:   "internal",
 }
 
+// GetDatabase gets the instance of the database connection used for the application.
 func GetDatabase() (*gorm.DB, error) {
 	once.Do(func() {
 		dbHost := viper.GetString(constants.DBHOST)
@@ -44,6 +47,7 @@ func GetDatabase() (*gorm.DB, error) {
 	return db, err
 }
 
+// AddMedia adds a new Media to the database.
 func AddMedia(media Media) error {
 	db, err := GetDatabase()
 	if err != nil {
@@ -53,6 +57,8 @@ func AddMedia(media Media) error {
 	return nil
 }
 
+// FindMedia searches the database for Media items matching the title in query and returns the number of results
+// specified by limit.
 func FindMedia(query string, limit int) []Media {
 	db, err := GetDatabase()
 	if err != nil {
@@ -63,6 +69,7 @@ func FindMedia(query string, limit int) []Media {
 	return media
 }
 
+// GetMedia attempts to return the Media identified by id and kind, and returns an error if not found.
 func GetMedia(id string, kind string) (Media, error) {
 	db, err := GetDatabase()
 	if err != nil {
@@ -73,9 +80,10 @@ func GetMedia(id string, kind string) (Media, error) {
 	if len(media) > 0 {
 		return media[0], nil
 	}
-	return Media{}, errors.New("Media not found in DB.")
+	return Media{}, errors.New("media not found in DB")
 }
 
+// GetRandomMedia returns a number of random Media specified by limit.
 func GetRandomMedia(limit int) []Media {
 	db, err := GetDatabase()
 	if err != nil {
