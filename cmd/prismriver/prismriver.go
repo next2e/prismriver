@@ -35,7 +35,7 @@ func main() {
 	verbosity := viper.GetString(constants.VERBOSITY)
 	level, err := logrus.ParseLevel(verbosity)
 	if err != nil {
-		logrus.Errorf("Error reading verbosity level in configuration", err)
+		logrus.Errorf("Error reading verbosity level in configuration: %v", err)
 	}
 	logrus.SetLevel(level)
 	dataDir := viper.GetString(constants.DATA)
@@ -44,12 +44,12 @@ func main() {
 
 	beQuiet, err := assets.HTTP.Open("bequiet.opus")
 	if err != nil {
-		logrus.Fatal("Error reading bequiet.opus in internal filesystem (is this binary corrupted?)\n", err)
+		logrus.Fatalf("Error reading bequiet.opus in internal filesystem (is this binary corrupted?): %v", err)
 	}
 	beQuietPath := path.Join(dataDir, "internal", "bequiet.opus")
 	beQuietFile, err := os.Create(beQuietPath)
 	if err != nil {
-		logrus.Fatal("Error creating application files\n", err)
+		logrus.Fatalf("Error creating application files: %v", err)
 	}
 	io.Copy(beQuietFile, beQuiet)
 	beQuietFile.Close()
