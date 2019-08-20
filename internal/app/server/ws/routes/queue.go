@@ -16,20 +16,20 @@ var queueUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-	ReadBufferSize: 1024,
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
 func GetQueueHub() *ws.Hub {
-	queueOnce.Do(func () {
+	queueOnce.Do(func() {
 		queueHub = ws.CreateHub()
 		go queueHub.Execute()
 
-		go (func () {
+		go (func() {
 			queue := player.GetQueue()
 			for {
 				select {
-				case response := <- queue.Update:
+				case response := <-queue.Update:
 					queueHub.Broadcast <- response
 				}
 			}
@@ -48,7 +48,7 @@ func WebsocketQueueHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	client := &ws.Client{
 		Conn: conn,
-		Hub: queueHub,
+		Hub:  queueHub,
 		Send: make(chan []byte, 256),
 	}
 	client.Hub.Register <- client

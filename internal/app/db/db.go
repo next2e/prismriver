@@ -17,10 +17,10 @@ var err error
 var once sync.Once
 
 var BeQuiet = &Media{
-	ID: "bequiet",
+	ID:     "bequiet",
 	Length: 3710000000,
-	Title: "Please Be Quiet!",
-	Type: "internal",
+	Title:  "Please Be Quiet!",
+	Type:   "internal",
 }
 
 func GetDatabase() (*gorm.DB, error) {

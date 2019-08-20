@@ -16,20 +16,20 @@ var playerUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
-	ReadBufferSize: 1024,
+	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 }
 
 func GetPlayerHub() *ws.Hub {
-	playerOnce.Do(func () {
+	playerOnce.Do(func() {
 		playerHub = ws.CreateHub()
 		go playerHub.Execute()
 
-		go (func () {
+		go (func() {
 			playerInstance := player.GetPlayer()
 			for {
 				select {
-				case response := <- playerInstance.Update:
+				case response := <-playerInstance.Update:
 					playerHub.Broadcast <- response
 				}
 			}
@@ -48,7 +48,7 @@ func WebsocketPlayerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	client := &ws.Client{
 		Conn: conn,
-		Hub: playerHub,
+		Hub:  playerHub,
 		Send: make(chan []byte, 256),
 	}
 	client.Hub.Register <- client

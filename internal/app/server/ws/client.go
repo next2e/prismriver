@@ -44,7 +44,7 @@ func (c *Client) RunWrite() {
 		c.Conn.Close()
 	}()
 	for {
-		select{
+		select {
 		case message, ok := <-c.Send:
 			logrus.Debug("Received Send message on WS Client.")
 			c.Conn.SetWriteDeadline(time.Now().Add(writeWait))

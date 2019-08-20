@@ -21,10 +21,10 @@ func GetInfo(query string) (db.Media, error) {
 		return db.Media{}, err
 	}
 	return db.Media{
-		ID: info.ID,
+		ID:     info.ID,
 		Length: uint64(info.Duration * 1000000),
-		Title: info.Title,
-		Type: "youtube",
+		Title:  info.Title,
+		Type:   "youtube",
 	}, nil
 }
 
@@ -45,7 +45,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 			logrus.Debugf("Download is at %f percent completion", progress)
 			progressChan <- progress / 2
 		}
-		result := <- closeChan
+		result := <-closeChan
 		if result.Err != nil {
 			logrus.Error("Error downloading media file:\n", err)
 			doneChan <- err
@@ -56,7 +56,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 
 		trans := new(transcoder.Transcoder)
 		dataDir := viper.GetString(constants.DATA)
-		filePath := path.Join(dataDir, id + ".opus")
+		filePath := path.Join(dataDir, id+".opus")
 		err = trans.Initialize(result.Path, filePath)
 		if err != nil {
 			logrus.Error("Error starting transcoding process:\n", err)
@@ -71,7 +71,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 		done := trans.Run(true)
 		progress := trans.Output()
 		for msg := range progress {
-			progressChan <- msg.Progress / 2 + 50
+			progressChan <- msg.Progress/2 + 50
 			logrus.Debug(msg)
 		}
 		if err := <-done; err != nil {

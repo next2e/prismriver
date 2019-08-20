@@ -16,23 +16,23 @@ var queueInstance *Queue
 var queueOnce sync.Once
 
 type Queue struct {
-	items []*QueueItem
+	items  []*QueueItem
 	Update chan []byte
 }
 
 type QueueItem struct {
-	Downloading bool
+	Downloading      bool
 	DownloadProgress float64
-	Media db.Media
-	ready chan bool
-	queue *Queue
+	Media            db.Media
+	ready            chan bool
+	queue            *Queue
 }
 
 func GetQueue() *Queue {
 	queueOnce.Do(func() {
 		logrus.Info("Created queue instance.")
 		queueInstance = &Queue{
-			items: make([]*QueueItem, 0),
+			items:  make([]*QueueItem, 0),
 			Update: make(chan []byte),
 		}
 	})
@@ -42,9 +42,9 @@ func GetQueue() *Queue {
 func (q *Queue) Add(media db.Media) {
 	item := &QueueItem{
 		Downloading: false,
-		Media: media,
-		ready: make(chan bool),
-		queue: q,
+		Media:       media,
+		ready:       make(chan bool),
+		queue:       q,
 	}
 	q.items = append(q.items, item)
 	length := len(q.items)
@@ -66,7 +66,7 @@ func (q *Queue) Add(media db.Media) {
 			for progress := range progressChan {
 				item.UpdateDownload(true, progress)
 			}
-			if err := <- doneChan; err != nil {
+			if err := <-doneChan; err != nil {
 				item.UpdateDownload(false, 100)
 			}
 			item.UpdateDownload(false, 100)
@@ -108,9 +108,9 @@ func (q *Queue) BeQuiet() {
 	quietQueue := make([]*QueueItem, 0)
 	quietItem := &QueueItem{
 		Downloading: false,
-		Media: *db.BeQuiet,
-		ready: make(chan bool, 1),
-		queue: q,
+		Media:       *db.BeQuiet,
+		ready:       make(chan bool, 1),
+		queue:       q,
 	}
 	quietItem.ready <- true
 	close(quietItem.ready)
@@ -121,11 +121,11 @@ func (q *Queue) BeQuiet() {
 }
 
 func (q *Queue) MoveDown(index int) {
-	if index == len(q.items) - 1 {
+	if index == len(q.items)-1 {
 		return
 	}
-	temp := q.items[index + 1]
-	q.items[index + 1] = q.items[index]
+	temp := q.items[index+1]
+	q.items[index+1] = q.items[index]
 	q.items[index] = temp
 	q.sendQueueUpdate()
 }
@@ -134,8 +134,8 @@ func (q *Queue) MoveUp(index int) {
 	if index == 1 {
 		return
 	}
-	temp := q.items[index - 1]
-	q.items[index - 1] = q.items[index]
+	temp := q.items[index-1]
+	q.items[index-1] = q.items[index]
 	q.items[index] = temp
 	q.sendQueueUpdate()
 }
@@ -154,7 +154,7 @@ func (q Queue) GetItems() []*QueueItem {
 }
 
 func (q *Queue) Remove(index int) {
-	q.items = append(q.items[:index], q.items[index + 1:]...)
+	q.items = append(q.items[:index], q.items[index+1:]...)
 	go q.sendQueueUpdate()
 }
 

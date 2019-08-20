@@ -18,7 +18,7 @@ var playerTicker *time.Ticker
 const (
 	STOPPED = iota
 	PLAYING = iota
-	PAUSED = iota
+	PAUSED  = iota
 	LOADING = iota
 )
 
@@ -32,9 +32,9 @@ type Player struct {
 
 type PlayerState struct {
 	CurrentTime int
-	TotalTime int
-	State int
-	Volume int
+	TotalTime   int
+	State       int
+	Volume      int
 }
 
 func GetPlayer() *Player {
@@ -46,10 +46,10 @@ func GetPlayer() *Player {
 			Volume:   100,
 		}
 		playerTicker = time.NewTicker(30 * time.Second)
-		go func () {
+		go func() {
 			for {
 				select {
-				case <- playerTicker.C:
+				case <-playerTicker.C:
 					response := playerInstance.GenerateResponse()
 					playerInstance.Update <- response
 				}
@@ -73,9 +73,9 @@ func (p Player) GenerateResponse() []byte {
 		}
 		response, err := json.Marshal(PlayerState{
 			CurrentTime: currentTime,
-			State: p.State,
-			TotalTime: totalTime,
-			Volume: p.Volume,
+			State:       p.State,
+			TotalTime:   totalTime,
+			Volume:      p.Volume,
 		})
 		if err != nil {
 			logrus.Error("Error generating JSON response:")
@@ -85,9 +85,9 @@ func (p Player) GenerateResponse() []byte {
 	} else {
 		response, err := json.Marshal(PlayerState{
 			CurrentTime: 0,
-			State: p.State,
-			TotalTime: 0,
-			Volume: p.Volume,
+			State:       p.State,
+			TotalTime:   0,
+			Volume:      p.Volume,
 		})
 		if err != nil {
 			logrus.Error("Error generating JSON response:")
@@ -112,7 +112,7 @@ func (p *Player) Play(item *QueueItem) error {
 	} else {
 		filePath = path.Join(dataDir, item.Media.ID+".opus")
 	}
-	ready := <- item.ready
+	ready := <-item.ready
 
 	if !ready {
 		logrus.Warn("Item labeled as not ready, not playing.")

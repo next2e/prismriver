@@ -5,17 +5,17 @@ import (
 )
 
 type Hub struct {
-	Broadcast chan []byte
-	clients map[*Client]bool
-	Register chan *Client
+	Broadcast  chan []byte
+	clients    map[*Client]bool
+	Register   chan *Client
 	Unregister chan *Client
 }
 
 func CreateHub() *Hub {
 	return &Hub{
-		Broadcast: make(chan []byte),
-		clients: make(map[*Client]bool),
-		Register: make(chan *Client),
+		Broadcast:  make(chan []byte),
+		clients:    make(map[*Client]bool),
+		Register:   make(chan *Client),
 		Unregister: make(chan *Client),
 	}
 }

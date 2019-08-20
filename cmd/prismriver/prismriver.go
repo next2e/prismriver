@@ -40,7 +40,7 @@ func main() {
 	logrus.SetLevel(level)
 	dataDir := viper.GetString(constants.DATA)
 	os.MkdirAll(dataDir, os.ModeDir)
-	os.MkdirAll(dataDir + "/internal", os.ModeDir)
+	os.MkdirAll(dataDir+"/internal", os.ModeDir)
 
 	beQuiet, err := assets.HTTP.Open("bequiet.opus")
 	if err != nil {
