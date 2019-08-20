@@ -4,9 +4,9 @@
       <button @click="deleteSong" class="delete"><span class="glyphicon glyphicon-trash"></span></button>
       <button :disabled="disableup" @click="up" class="select-song pull-right"><span class="glyphicon glyphicon-arrow-up"></span></button>
       <button :disabled="disabledown" @click="down" class="select-song pull-right" style="margin-left: 15px;"><span class="glyphicon glyphicon-arrow-down"></span></button>
-      {{ item.Media.Title }}
+      {{ item.media.Title }}
     </span>
-    <progress-bar v-if="item.Downloading" :progress="item.DownloadProgress"></progress-bar>
+    <progress-bar v-if="item.downloading" :progress="item.progress"></progress-bar>
   </li>
 </template>
 
