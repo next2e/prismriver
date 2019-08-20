@@ -1,12 +1,12 @@
-all: deps build
+all: deps build-prod
 
-build: frontend
+build:
 	fileb0x assets.json
 	go build cmd/prismriver/prismriver.go
 
-build-dev: frontend-dev
-	fileb0x assets.json
-	go build cmd/prismriver/prismriver.go
+build-dev: frontend-dev validate build
+
+build-prod: frontend validate build
 
 deps:
 	dep ensure
@@ -24,7 +24,11 @@ install:
 	install -D -m755 "prismriver" "/usr/local/bin/prismriver"
 	install -D -m644 "prismriver.service" "/usr/lib/systemd/system/prismriver.service"
 
-run: build
+run: build-prod
 	./prismriver
+
+validate:
+	./scripts/validate.sh
+	go build -race cmd/prismriver/prismriver.go
 
 .PHONY: all build deps frontend install run
