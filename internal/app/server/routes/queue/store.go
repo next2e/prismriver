@@ -33,7 +33,7 @@ func StoreHandler(w http.ResponseWriter, r *http.Request) {
 				queue.Add(media)
 				return
 			}
-			media, err = sources.GetInfo(url)
+			media, err = sources.GetInfo(res[0][5])
 			if err != nil {
 				logrus.Error("Could not get video info")
 				return

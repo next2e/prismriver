@@ -13,8 +13,8 @@ import (
 )
 
 // GetInfo retrieves the info for the YouTube video and returns it as a Media item, or an error if encountered.
-func GetInfo(query string) (db.Media, error) {
-	downloader := youtubedl.NewDownloader(query)
+func GetInfo(id string) (db.Media, error) {
+	downloader := youtubedl.NewDownloader(id)
 	info, err := downloader.GetInfo()
 	if err != nil {
 		logrus.Error("Error retrieving video info:")
