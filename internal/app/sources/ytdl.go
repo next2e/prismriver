@@ -35,13 +35,17 @@ func GetVideo(id string) (chan float64, chan error, error) {
 	progressChan := make(chan float64)
 	doneChan := make(chan error)
 	go func() {
+		callDone := func(err error) {
+			close(progressChan)
+			doneChan <- err
+			close(doneChan)
+		}
 		downloader := youtubedl.NewDownloader(id)
 		downloader.Output("/tmp/" + youtubedl.ID)
 		eventChan, closeChan, err := downloader.RunProgress()
 		if err != nil {
 			logrus.Error("Error starting media download:\n", err)
-			doneChan <- err
-			close(doneChan)
+			callDone(err)
 			return
 		}
 		for progress := range eventChan {
@@ -51,8 +55,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 		result := <-closeChan
 		if result.Err != nil {
 			logrus.Error("Error downloading media file:\n", result.Err)
-			doneChan <- result.Err
-			close(doneChan)
+			callDone(result.Err)
 			return
 		}
 		logrus.Debug("Downloaded media file")
@@ -63,8 +66,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 		err = trans.Initialize(result.Path, filePath)
 		if err != nil {
 			logrus.Error("Error starting transcoding process:\n", err)
-			doneChan <- err
-			close(doneChan)
+			callDone(err)
 			return
 		}
 		trans.MediaFile().SetAudioCodec("libopus")
@@ -79,8 +81,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 		}
 		if err := <-done; err != nil {
 			logrus.Error("Error in transcoding process:\n", err)
-			doneChan <- err
-			close(doneChan)
+			callDone(err)
 			return
 		}
 		logrus.Debug("Transcoded media to vorbis audio")
@@ -91,9 +92,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 		}
 		logrus.Debug("Removed temporary audio file")
 		logrus.Infof("Downloaded new audio file for YouTube video ID %s", id)
-		close(progressChan)
-		doneChan <- nil
-		close(doneChan)
+		callDone(nil)
 	}()
 	return progressChan, doneChan, nil
 }
