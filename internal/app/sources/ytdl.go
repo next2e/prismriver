@@ -39,7 +39,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 		downloader.Output("/tmp/" + youtubedl.ID)
 		eventChan, closeChan, err := downloader.RunProgress()
 		if err != nil {
-			logrus.Error("Error when downloading video file:\n", err)
+			logrus.Error("Error starting media download:\n", err)
 			doneChan <- err
 			close(doneChan)
 			return
@@ -50,8 +50,8 @@ func GetVideo(id string) (chan float64, chan error, error) {
 		}
 		result := <-closeChan
 		if result.Err != nil {
-			logrus.Error("Error downloading media file:\n", err)
-			doneChan <- err
+			logrus.Error("Error downloading media file:\n", result.Err)
+			doneChan <- result.Err
 			close(doneChan)
 			return
 		}
