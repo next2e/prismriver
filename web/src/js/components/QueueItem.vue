@@ -6,7 +6,7 @@
       <button :disabled="disabledown" @click="down" class="select-song pull-right" style="margin-left: 15px;"><span class="glyphicon glyphicon-arrow-down"></span></button>
       {{ item.media.Title }}
     </span>
-    <progress-bar v-if="item.downloading" :progress="item.progress"></progress-bar>
+    <progress-bar v-if="item.downloading || item.error" :error="item.error" :progress="item.progress"></progress-bar>
   </li>
 </template>
 

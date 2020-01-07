@@ -4,7 +4,7 @@
     <div id="playing">
       <p v-if="item" class="text-overflow">{{ item.media.Title }}</p>
       <p v-else>Nothing currently playing</p>
-      <progress-bar v-if="item && item.downloading" :progress="item.progress"></progress-bar>
+      <progress-bar v-if="item && item.downloading || item &&  item.error" :progress="item.progress" :error="item.error"></progress-bar>
     </div>
     <div class="skipDiv">
       <button id="skipButton" class="hvr-shutter-out-horizontal" @click="skip"><span class="glyphicon glyphicon-forward"></span>Skip song</button>
@@ -21,7 +21,7 @@
           <span style="margin-left: 15px;">{{ parseTime(currentTime / 1000) +  ' / ' + parseTime(totalTime / 1000) }}</span>
         </div>
       </p>
-    </div>
+    </p>
   </div>
 </template>
 
