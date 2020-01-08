@@ -239,9 +239,11 @@ func (p *Player) DownVolume() {
 	if p.Volume == 0 {
 		return
 	}
-	if err := p.player.SetVolume(p.Volume - 5); err != nil {
-		logrus.Errorf("error setting volume: %v", err)
-		return
+	if p.State == PLAYING {
+		if err := p.player.SetVolume(p.Volume - 5); err != nil {
+			logrus.Errorf("error setting volume: %v", err)
+			return
+		}
 	}
 	p.Volume -= 5
 	p.sendPlayerUpdate()
