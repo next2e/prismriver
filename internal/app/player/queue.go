@@ -73,7 +73,11 @@ func (q *Queue) Add(media db.Media) {
 	q.sendQueueUpdate()
 
 	dataDir := viper.GetString(constants.DATA)
-	filePath := path.Join(dataDir, media.ID+".mp4")
+	ext := ".opus"
+	if media.Video {
+		ext = ".mp4"
+	}
+	filePath := path.Join(dataDir, media.ID+ext)
 	_, err := os.Stat(filePath)
 	q.RLock()
 	download, ok := q.downloads[item.Media.ID]
