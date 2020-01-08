@@ -130,7 +130,7 @@ func GetVideo(media db.Media) (chan float64, chan error, error) {
 			}
 		}
 		if err := os.Remove(result.Path); err != nil {
-			logrus.Error("error when removing temporary file: %v", err)
+			logrus.Errorf("error when removing temporary file: %v", err)
 			// We don't return here because even if the temporary file isn't deleted, we successfully got the audio.
 		}
 		logrus.Debug("removed temporary youtube-dl file")
