@@ -9,7 +9,6 @@ build-dev: frontend-dev validate build
 build-prod: frontend validate build
 
 deps:
-	dep ensure
 	cd web && yarn
 
 frontend:
