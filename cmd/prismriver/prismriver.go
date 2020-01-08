@@ -23,6 +23,7 @@ func main() {
 	viper.SetDefault(constants.DBPORT, "5432")
 	viper.SetDefault(constants.DBUSER, "prismriver")
 	viper.SetDefault(constants.VERBOSITY, "info")
+	viper.SetDefault(constants.VIDEOTRANSCODING, true)
 
 	envVars := []string{
 		constants.DBHOST,
@@ -31,12 +32,18 @@ func main() {
 		constants.DBPORT,
 		constants.DBUSER,
 		constants.VERBOSITY,
+		constants.VIDEOTRANSCODING,
 	}
 
 	for _, env := range envVars {
 		if err := viper.BindEnv(env); err != nil {
 			logrus.Warnf("error binding to variable %v: %v", env, err)
 		}
+	}
+
+	viper.SetConfigFile(constants.CONFIGPATH)
+	if err := viper.ReadInConfig(); err != nil {
+		logrus.Warnf("could not read config file, ignoring: %v", err)
 	}
 
 	verbosity := viper.GetString(constants.VERBOSITY)

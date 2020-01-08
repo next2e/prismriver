@@ -16,4 +16,7 @@ const (
 	DBUSER = "DB_User"
 	// VERBOSITY (used as VERBOSITY) specifies the logging verbosity.
 	VERBOSITY = "Verbosity"
+
+	// CONFIGPATH denotes the expected location of the Prismriver config file.
+	CONFIGPATH = "/etc/prismriver/prismriver.yml"
 )

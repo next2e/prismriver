@@ -1,0 +1,22 @@
+## Uncomment any of these lines to manually specify a setting for them.
+
+## DATADIR specifies the data storage directory.
+# DATADIR: /var/lib/prismriver
+
+## DB_HOST specifies the database connection host.
+# DB_HOST: localhost
+
+## DB_NAME specifies the database name.
+# DB_NAME: prismriver
+
+## DB_PASSWORD specifies the database connection password.
+# DB_PASSWORD: prismriver
+
+## DB_PORT specifies the database connection port.
+# DB_PORT: 5432
+
+## DB_USER specifies the database connection user.
+# DB_USER: prismriver
+
+##  VERBOSITY specifies the logging verbosity.
+# VERBOSITY: info

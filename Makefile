@@ -21,6 +21,7 @@ frontend-dev:
 	fileb0x web.json
 
 install:
+	install -b -D -m644 "prismriver.yml" "/etc/prismriver/prismriver.yml"
 	install -D -m755 "prismriver" "/usr/local/bin/prismriver"
 	install -D -m644 "prismriver.service" "/usr/lib/systemd/system/prismriver.service"
 
