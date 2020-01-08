@@ -1,15 +1,17 @@
 package sources
 
 import (
-	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
-	"gitlab.com/ttpcodes/prismriver/internal/app/db"
-	"gitlab.com/ttpcodes/youtube-dl-go"
+	"io"
 	"os"
 	"path"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/xfrr/goffmpeg/transcoder"
+
+	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
+	"gitlab.com/ttpcodes/prismriver/internal/app/db"
+	"gitlab.com/ttpcodes/youtube-dl-go"
 )
 
 // GetInfo retrieves the info for the YouTube video and returns it as a Media item, or an error if encountered.
@@ -61,48 +63,78 @@ func GetVideo(media db.Media) (chan float64, chan error, error) {
 		}
 		logrus.Debug("Downloaded media file")
 
-		trans := new(transcoder.Transcoder)
 		dataDir := viper.GetString(constants.DATA)
-		ext := ".opus"
-		if media.Video {
-			ext = ".mp4"
-		}
-		filePath := path.Join(dataDir, media.ID+ext)
-		err = trans.Initialize(result.Path, filePath)
-		if err != nil {
-			logrus.Error("Error starting transcoding process:\n", err)
-			callDone(err)
-			return
-		}
-		trans.MediaFile().SetAudioCodec("libopus")
-		if media.Video {
-			trans.MediaFile().SetVideoCodec("libx264")
-			// Needed to enable experimental Opus in the mp4 container format.
-			trans.MediaFile().SetStrict(-2)
-		} else {
-			trans.MediaFile().SetSkipVideo(true)
-		}
-		logrus.Debug("Instantiated ffmpeg transcoder")
+		if !media.Video || viper.GetBool(constants.VIDEOTRANSCODING) {
+			trans := new(transcoder.Transcoder)
+			ext := ".opus"
+			if media.Video {
+				ext = ".mp4"
+			}
+			filePath := path.Join(dataDir, media.ID+ext)
+			err = trans.Initialize(result.Path, filePath)
+			if err != nil {
+				logrus.Error("Error starting transcoding process:\n", err)
+				callDone(err)
+				return
+			}
+			trans.MediaFile().SetAudioCodec("libopus")
+			if media.Video {
+				trans.MediaFile().SetVideoCodec("libx264")
+				// Needed to enable experimental Opus in the mp4 container format.
+				trans.MediaFile().SetStrict(-2)
+			} else {
+				trans.MediaFile().SetSkipVideo(true)
+			}
+			logrus.Debug("Instantiated ffmpeg transcoder")
 
-		done := trans.Run(true)
-		progress := trans.Output()
-		for msg := range progress {
-			progressChan <- msg.Progress/2 + 50
-			logrus.Debug(msg)
+			done := trans.Run(true)
+			progress := trans.Output()
+			for msg := range progress {
+				progressChan <- msg.Progress/2 + 50
+				logrus.Debug(msg)
+			}
+			if err := <-done; err != nil {
+				logrus.Error("Error in transcoding process:\n", err)
+				callDone(err)
+				return
+			}
+			logrus.Debug("Transcoded media to vorbis audio")
+		} else {
+			logrus.Debugf("video transcoding disabled, moving file to final destination")
+			input, err := os.Open(result.Path)
+			if err != nil {
+				logrus.Errorf("error reading original video file: %v", err)
+				callDone(err)
+				return
+			}
+			defer func() {
+				if err := input.Close(); err != nil {
+					logrus.Errorf("error closing input file: %v", err)
+				}
+			}()
+			output, err := os.Create(path.Join(dataDir, media.ID+".video"))
+			if err != nil {
+				logrus.Errorf("error opening destination file: %v", err)
+				callDone(err)
+				return
+			}
+			defer func() {
+				if err := output.Close(); err != nil {
+					logrus.Errorf("error closing output file: %v", err)
+				}
+			}()
+			if _, err := io.Copy(output, input); err != nil {
+				logrus.Errorf("error copying video file: %v", err)
+				callDone(err)
+				return
+			}
 		}
-		if err := <-done; err != nil {
-			logrus.Error("Error in transcoding process:\n", err)
-			callDone(err)
-			return
-		}
-		logrus.Debug("Transcoded media to vorbis audio")
 		if err := os.Remove(result.Path); err != nil {
-			logrus.Error("Error when removing temporary file")
-			logrus.Error(err)
+			logrus.Error("error when removing temporary file: %v", err)
 			// We don't return here because even if the temporary file isn't deleted, we successfully got the audio.
 		}
-		logrus.Debug("Removed temporary audio file")
-		logrus.Infof("Downloaded new audio file for YouTube video ID %s", media.ID)
+		logrus.Debug("removed temporary youtube-dl file")
+		logrus.Infof("downloaded new file for YouTube video ID %s", media.ID)
 		callDone(nil)
 	}()
 	return progressChan, doneChan, nil

@@ -75,7 +75,11 @@ func (q *Queue) Add(media db.Media) {
 	dataDir := viper.GetString(constants.DATA)
 	ext := ".opus"
 	if media.Video {
-		ext = ".mp4"
+		if viper.GetBool(constants.VIDEOTRANSCODING) {
+			ext = ".mp4"
+		} else {
+			ext = ".video"
+		}
 	}
 	filePath := path.Join(dataDir, media.ID+ext)
 	_, err := os.Stat(filePath)

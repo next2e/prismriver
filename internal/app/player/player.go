@@ -118,7 +118,11 @@ func (p *Player) Play(item *QueueItem) error {
 	var filePath string
 	ext := ".opus"
 	if item.Media.Video {
-		ext = ".mp4"
+		if viper.GetBool(constants.VIDEOTRANSCODING) {
+			ext = ".mp4"
+		} else {
+			ext = ".video"
+		}
 	}
 	if item.Media.Type == "internal" {
 		filePath = path.Join(dataDir, "internal", item.Media.ID+ext)

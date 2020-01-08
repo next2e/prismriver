@@ -16,6 +16,8 @@ const (
 	DBUSER = "DB_User"
 	// VERBOSITY (used as VERBOSITY) specifies the logging verbosity.
 	VERBOSITY = "Verbosity"
+	// VIDEOTRANSCODING (used as VIDEO_TRANSCODING) specifies whether or not to enable video transcoding.
+	VIDEOTRANSCODING = "Video_Transcoding"
 
 	// CONFIGPATH denotes the expected location of the Prismriver config file.
 	CONFIGPATH = "/etc/prismriver/prismriver.yml"

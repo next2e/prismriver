@@ -20,3 +20,6 @@
 
 ##  VERBOSITY specifies the logging verbosity.
 # VERBOSITY: info
+
+## VIDEO_TRANSCODING specifies whether or not to enable video transcoding.
+# VIDEO_TRANSCODING: true
