@@ -135,7 +135,13 @@ func (p *Player) Play(item *QueueItem) error {
 		logrus.Error(err)
 		return err
 	}
-	defer vlc.Release()
+
+	defer func() {
+		if err := vlc.Release(); err != nil {
+			logrus.Errorf("error releasing vlc instance: %v", err)
+		}
+		p.player = nil
+	}()
 
 	var err error
 	p.player, err = vlc.NewPlayer()
@@ -145,8 +151,12 @@ func (p *Player) Play(item *QueueItem) error {
 		return err
 	}
 	defer func() {
-		p.player.Stop()
-		p.player.Release()
+		if err := p.player.Stop(); err != nil {
+			logrus.Errorf("error stopping vlc player: %v", err)
+		}
+		if err := p.player.Release(); err != nil {
+			logrus.Errorf("error releasing vlc player: %v", err)
+		}
 	}()
 
 	vlcMedia, err := p.player.LoadMediaFromPath(filePath)
@@ -155,14 +165,27 @@ func (p *Player) Play(item *QueueItem) error {
 		logrus.Error(err)
 		return err
 	}
-	defer vlcMedia.Release()
+	defer func() {
+		if err := vlcMedia.Release(); err != nil {
+			logrus.Errorf("error releasing media item: %v", err)
+		}
+	}()
 
 	if err := p.player.Play(); err != nil {
 		logrus.Error("Error playing media file:")
 		logrus.Error(err)
 		return err
 	}
-	p.player.SetVolume(p.Volume)
+
+	if err := p.player.SetVolume(p.Volume); err != nil {
+		logrus.Errorf("error setting volume: %v", err)
+		return err
+	}
+
+	if err := p.player.SetFullScreen(true); err != nil {
+		logrus.Errorf("error setting fullscreen: %v", err)
+		return err
+	}
 
 	time.Sleep(1 * time.Second)
 	length, err := p.player.MediaLength()
@@ -199,10 +222,13 @@ func (p *Player) UpVolume() {
 	if p.Volume == 100 {
 		return
 	}
-	p.Volume += 5
 	if p.State == PLAYING {
-		p.player.SetVolume(p.Volume)
+		if err := p.player.SetVolume(p.Volume + 5); err != nil {
+			logrus.Errorf("error setting volume: %v", err)
+			return
+		}
 	}
+	p.Volume += 5
 	p.sendPlayerUpdate()
 }
 
@@ -211,9 +237,11 @@ func (p *Player) DownVolume() {
 	if p.Volume == 0 {
 		return
 	}
+	if err := p.player.SetVolume(p.Volume - 5); err != nil {
+		logrus.Errorf("error setting volume: %v", err)
+		return
+	}
 	p.Volume -= 5
-	if p.State == PLAYING {
-		p.player.SetVolume(p.Volume)
 	}
 	p.sendPlayerUpdate()
 }

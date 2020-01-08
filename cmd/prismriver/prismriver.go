@@ -24,13 +24,20 @@ func main() {
 	viper.SetDefault(constants.DBUSER, "prismriver")
 	viper.SetDefault(constants.VERBOSITY, "info")
 
-	viper.BindEnv(constants.DATA)
-	viper.BindEnv(constants.DBHOST)
-	viper.BindEnv(constants.DBNAME)
-	viper.BindEnv(constants.DBPASSWORD)
-	viper.BindEnv(constants.DBPORT)
-	viper.BindEnv(constants.DBUSER)
-	viper.BindEnv(constants.VERBOSITY)
+	envVars := []string{
+		constants.DBHOST,
+		constants.DBNAME,
+		constants.DBPASSWORD,
+		constants.DBPORT,
+		constants.DBUSER,
+		constants.VERBOSITY,
+	}
+
+	for _, env := range envVars {
+		if err := viper.BindEnv(env); err != nil {
+			logrus.Warnf("error binding to variable %v: %v", env, err)
+		}
+	}
 
 	verbosity := viper.GetString(constants.VERBOSITY)
 	level, err := logrus.ParseLevel(verbosity)
@@ -39,8 +46,12 @@ func main() {
 	}
 	logrus.SetLevel(level)
 	dataDir := viper.GetString(constants.DATA)
-	os.MkdirAll(dataDir, os.ModeDir)
-	os.MkdirAll(dataDir+"/internal", os.ModeDir)
+	if err := os.MkdirAll(dataDir, os.ModeDir); err != nil {
+		logrus.Fatalf("error creating data directory: %v", err)
+	}
+	if err := os.MkdirAll(dataDir+"/internal", os.ModeDir); err != nil {
+		logrus.Fatalf("error creating internal directory: %v", err)
+	}
 
 	beQuiet, err := assets.HTTP.Open("bequiet.opus")
 	if err != nil {
@@ -51,8 +62,12 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Error creating application files: %v", err)
 	}
-	io.Copy(beQuietFile, beQuiet)
-	beQuietFile.Close()
+	if _, err := io.Copy(beQuietFile, beQuiet); err != nil {
+		logrus.Fatalf("error copying bequiet.opus: %v", err)
+	}
+	if err := beQuietFile.Close(); err != nil {
+		logrus.Warnf("error closing reader on bequiet.opus: %v", err)
+	}
 
 	server.CreateRouter()
 }
