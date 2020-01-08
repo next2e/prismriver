@@ -244,7 +244,6 @@ func (p *Player) DownVolume() {
 		return
 	}
 	p.Volume -= 5
-	}
 	p.sendPlayerUpdate()
 }
 
