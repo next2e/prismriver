@@ -73,13 +73,13 @@ func (q *Queue) Add(media db.Media) {
 	q.sendQueueUpdate()
 
 	dataDir := viper.GetString(constants.DATA)
-	filePath := path.Join(dataDir, media.ID+".opus")
+	filePath := path.Join(dataDir, media.ID+".mp4")
 	_, err := os.Stat(filePath)
-	if item.Media.Type != "internal" && os.IsNotExist(err) {
-		// Read of downloads and assignment to map must be done together or another lock might get hold of it.
-		q.Lock()
-		if download, ok := q.downloads[item.Media.ID]; ok {
-			q.Unlock()
+	q.RLock()
+	download, ok := q.downloads[item.Media.ID]
+	q.RUnlock()
+	if item.Media.Type != "internal" && (os.IsNotExist(err) || ok) {
+		if ok {
 			go func() {
 				<-download.doneCh
 				if download.err != "" {
@@ -94,11 +94,12 @@ func (q *Queue) Add(media db.Media) {
 			download := &Download{
 				doneCh: make(chan struct{}),
 			}
+			q.Lock()
 			q.downloads[item.Media.ID] = download
 			q.Unlock()
 
 			q.sendQueueUpdate()
-			progressChan, doneChan, err := sources.GetVideo(media.ID)
+			progressChan, doneChan, err := sources.GetVideo(media)
 			if err != nil {
 				logrus.Error("Error when getting sources:")
 				logrus.Error(err)

@@ -2,9 +2,12 @@
   <div class="linkDiv">
     <p class="linkP"> Queue music - enter a link or go random! </p>
     <div class="linkContainer">
-      <form class="linkForm">
-        <input id="url" class="linkInput" v-model="url" type="text" autocomplete="off" autofocus placeholder="Insert Youtube url here" @keydown.enter.prevent="submit">
-        <button class="linkButton hvr-shuttegit gitr-out-horizontal" id="add-song" type="button" @click="submit">Add</button>
+      <form class="linkForm" style="flex-direction: column; align-items: flex-start;">
+        <div style="display: flex; width: 100%;">
+          <input id="url" class="linkInput" v-model="url" type="text" autocomplete="off" autofocus placeholder="Insert Youtube url here" @keydown.enter.prevent="submit">
+          <button class="linkButton hvr-shuttegit gitr-out-horizontal" id="add-song" type="button" @click="submit">Add</button>
+        </div>
+        <p><input type="checkbox" id="video" v-model="video"><label for="video">With Video?</label></p>
       </form>
       <button id="random" class="hvr-shutter-out-horizontal" type="button" @click="random">Random</button>
     </div>
@@ -19,6 +22,7 @@
 
   @Component
   export default class URLForm extends Mixins(ShowMessage) {
+    video = false
     url = ''
 
     random (event: Event) {
@@ -43,12 +47,14 @@
     submit () {
       const params = new URLSearchParams()
       params.set('url', this.url)
+      params.set('video', this.video.toString())
       fetch('queue', {
         body: params,
         method: 'POST'
       })
       this.showMessage('Submitted! Now downloading song...')
       this.url = ''
+      this.video = false
     }
   }
 </script>

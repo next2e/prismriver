@@ -12,4 +12,5 @@ type Media struct {
 	Length uint64 `gorm:"not null"`
 	Title  string `gorm:"not null"`
 	Type   string `gorm:"primary_key"`
+	Video  bool   `gorm:"not null"`
 }

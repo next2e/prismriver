@@ -13,7 +13,7 @@ import (
 )
 
 // GetInfo retrieves the info for the YouTube video and returns it as a Media item, or an error if encountered.
-func GetInfo(id string) (db.Media, error) {
+func GetInfo(id string, video bool) (db.Media, error) {
 	downloader := youtubedl.NewDownloader(id)
 	info, err := downloader.GetInfo()
 	if err != nil {
@@ -26,12 +26,13 @@ func GetInfo(id string) (db.Media, error) {
 		Length: uint64(info.Duration * 1000000),
 		Title:  info.Title,
 		Type:   "youtube",
+		Video:  video,
 	}, nil
 }
 
 // GetVideo attempts to download a YouTube video specified by id. It will return channels that can be used to track
 // the progress of the download and any errors encountered when the process finishes.
-func GetVideo(id string) (chan float64, chan error, error) {
+func GetVideo(media db.Media) (chan float64, chan error, error) {
 	progressChan := make(chan float64)
 	doneChan := make(chan error)
 	go func() {
@@ -40,7 +41,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 			doneChan <- err
 			close(doneChan)
 		}
-		downloader := youtubedl.NewDownloader(id)
+		downloader := youtubedl.NewDownloader(media.ID)
 		downloader.Output("/tmp/" + youtubedl.ID)
 		eventChan, closeChan, err := downloader.RunProgress()
 		if err != nil {
@@ -62,7 +63,11 @@ func GetVideo(id string) (chan float64, chan error, error) {
 
 		trans := new(transcoder.Transcoder)
 		dataDir := viper.GetString(constants.DATA)
-		filePath := path.Join(dataDir, id+".opus")
+		ext := ".opus"
+		if media.Video {
+			ext = ".mp4"
+		}
+		filePath := path.Join(dataDir, media.ID+ext)
 		err = trans.Initialize(result.Path, filePath)
 		if err != nil {
 			logrus.Error("Error starting transcoding process:\n", err)
@@ -70,7 +75,13 @@ func GetVideo(id string) (chan float64, chan error, error) {
 			return
 		}
 		trans.MediaFile().SetAudioCodec("libopus")
-		trans.MediaFile().SetSkipVideo(true)
+		if media.Video {
+			trans.MediaFile().SetVideoCodec("libx264")
+			// Needed to enable experimental Opus in the mp4 container format.
+			trans.MediaFile().SetStrict(-2)
+		} else {
+			trans.MediaFile().SetSkipVideo(true)
+		}
 		logrus.Debug("Instantiated ffmpeg transcoder")
 
 		done := trans.Run(true)
@@ -91,7 +102,7 @@ func GetVideo(id string) (chan float64, chan error, error) {
 			// We don't return here because even if the temporary file isn't deleted, we successfully got the audio.
 		}
 		logrus.Debug("Removed temporary audio file")
-		logrus.Infof("Downloaded new audio file for YouTube video ID %s", id)
+		logrus.Infof("Downloaded new audio file for YouTube video ID %s", media.ID)
 		callDone(nil)
 	}()
 	return progressChan, doneChan, nil

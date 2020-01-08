@@ -1,20 +1,30 @@
 package queue
 
 import (
+	"net/http"
+	"regexp"
+	"strconv"
+
 	"github.com/sirupsen/logrus"
 	"gitlab.com/ttpcodes/prismriver/internal/app/db"
 	"gitlab.com/ttpcodes/prismriver/internal/app/player"
 	"gitlab.com/ttpcodes/prismriver/internal/app/sources"
-	"net/http"
-	"regexp"
 )
 
 // StoreHandler handles requests for adding new QueueItems.
 func StoreHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		logrus.Warnf("error parsing form data from POST /queue: %v", err)
+		return
+	}
 	id := r.Form.Get("id")
 	kind := r.Form.Get("type")
 	url := r.Form.Get("url")
+	video, err := strconv.ParseBool(r.Form.Get("video"))
+	if err != nil {
+		logrus.Warnf("error parsing boolean from video input, defaulting to false")
+		video = false
+	}
 	if len(id) > 0 && len(kind) > 0 {
 		media, err := db.GetMedia(id, kind)
 		if err == nil {
@@ -33,12 +43,15 @@ func StoreHandler(w http.ResponseWriter, r *http.Request) {
 				queue.Add(media)
 				return
 			}
-			media, err = sources.GetInfo(res[0][5])
+			media, err = sources.GetInfo(res[0][5], video)
 			if err != nil {
 				logrus.Error("Could not get video info")
 				return
 			}
-			db.AddMedia(media)
+			if err := db.AddMedia(media); err != nil {
+				logrus.Errorf("error storing new media item: %v", err)
+				return
+			}
 			queue.Add(media)
 			return
 		}

@@ -116,10 +116,14 @@ func (p *Player) Play(item *QueueItem) error {
 	p.State = LOADING
 	dataDir := viper.GetString(constants.DATA)
 	var filePath string
+	ext := ".opus"
+	if item.Media.Video {
+		ext = ".mp4"
+	}
 	if item.Media.Type == "internal" {
-		filePath = path.Join(dataDir, "internal", item.Media.ID+".opus")
+		filePath = path.Join(dataDir, "internal", item.Media.ID+ext)
 	} else {
-		filePath = path.Join(dataDir, item.Media.ID+".opus")
+		filePath = path.Join(dataDir, item.Media.ID+ext)
 	}
 	ready := <-item.ready
 
@@ -128,9 +132,7 @@ func (p *Player) Play(item *QueueItem) error {
 		return nil
 	}
 
-	defer vlc.Release()
-
-	if err := vlc.Init("--no-video", "--quiet"); err != nil {
+	if err := vlc.Init("--quiet", "--fullscreen"); err != nil {
 		logrus.Error("Error initializing vlc:")
 		logrus.Error(err)
 		return err
