@@ -1,14 +1,17 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	"gitlab.com/ttpcodes/prismriver/assets"
-	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
-	"gitlab.com/ttpcodes/prismriver/internal/app/server"
 	"io"
 	"os"
 	"path"
+
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+
+	"gitlab.com/ttpcodes/prismriver/assets"
+	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
+	"gitlab.com/ttpcodes/prismriver/internal/app/downloader"
+	"gitlab.com/ttpcodes/prismriver/internal/app/server"
 )
 
 func main() {
@@ -53,11 +56,12 @@ func main() {
 	}
 	logrus.SetLevel(level)
 	dataDir := viper.GetString(constants.DATA)
-	if err := os.MkdirAll(dataDir, os.ModeDir); err != nil {
-		logrus.Fatalf("error creating data directory: %v", err)
+	if err := os.MkdirAll(path.Join(dataDir, "internal"), os.ModeDir); err != nil {
+		logrus.Fatalf("error creating data directories: %v", err)
 	}
-	if err := os.MkdirAll(dataDir+"/internal", os.ModeDir); err != nil {
-		logrus.Fatalf("error creating internal directory: %v", err)
+
+	if err := downloader.InitializeDownloader(); err != nil {
+		logrus.Fatalf("error initializing downloader: %v", err)
 	}
 
 	beQuiet, err := assets.HTTP.Open("bequiet.opus")

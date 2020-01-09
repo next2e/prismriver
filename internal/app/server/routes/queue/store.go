@@ -2,13 +2,13 @@ package queue
 
 import (
 	"net/http"
-	"regexp"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
+
 	"gitlab.com/ttpcodes/prismriver/internal/app/db"
+	"gitlab.com/ttpcodes/prismriver/internal/app/downloader"
 	"gitlab.com/ttpcodes/prismriver/internal/app/player"
-	"gitlab.com/ttpcodes/prismriver/internal/app/sources"
 )
 
 // StoreHandler handles requests for adding new QueueItems.
@@ -34,27 +34,28 @@ func StoreHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(url) != 0 {
-		regex := regexp.MustCompile(`(youtu\.be\/|youtube\.com\/(watch\?(.*&)?v=|(embed|v)\/))([^\?&"'>]+)`)
-		res := regex.FindAllStringSubmatch(url, -1)
-		if len(res[0]) > 0 {
+		id, name, source := downloader.FindSource(url)
+		if id != "" {
 			queue := player.GetQueue()
-			media, err := db.GetMedia(res[0][5], "youtube")
+			media, err := db.GetMedia(id, name)
 			if err == nil {
 				queue.Add(media)
 				return
 			}
-			media, err = sources.GetInfo(res[0][5], video)
+			media, err = source.GetInfo(id, video)
 			if err != nil {
-				logrus.Error("Could not get video info")
+				logrus.Errorf("could not get video info: %v", err)
 				return
 			}
 			if err := db.AddMedia(media); err != nil {
-				logrus.Errorf("error storing new media item: %v", err)
+				logrus.Errorf("error storing new media item; %v", err)
 				return
 			}
 			queue.Add(media)
 			return
 		}
+		logrus.Warnf("client attempted to add unsupported media %v, ignoring", url)
+		return
 	}
 	logrus.Warn("User sent an empty POST request, ignoring.")
 }

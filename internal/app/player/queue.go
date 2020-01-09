@@ -2,14 +2,16 @@ package player
 
 import (
 	"encoding/json"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
-	"gitlab.com/ttpcodes/prismriver/internal/app/db"
-	"gitlab.com/ttpcodes/prismriver/internal/app/sources"
 	"os"
 	"path"
 	"sync"
+
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+
+	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
+	"gitlab.com/ttpcodes/prismriver/internal/app/db"
+	"gitlab.com/ttpcodes/prismriver/internal/app/downloader"
 )
 
 var queueInstance *Queue
@@ -73,15 +75,16 @@ func (q *Queue) Add(media db.Media) {
 	q.sendQueueUpdate()
 
 	dataDir := viper.GetString(constants.DATA)
+	source := downloader.GetSource(media.Type)
 	ext := ".opus"
-	if media.Video {
+	if media.Video && source.HasVideo() {
 		if viper.GetBool(constants.VIDEOTRANSCODING) {
 			ext = ".mp4"
 		} else {
 			ext = ".video"
 		}
 	}
-	filePath := path.Join(dataDir, media.ID+ext)
+	filePath := path.Join(dataDir, media.Type, media.ID+ext)
 	_, err := os.Stat(filePath)
 	q.RLock()
 	download, ok := q.downloads[item.Media.ID]
@@ -106,11 +109,9 @@ func (q *Queue) Add(media db.Media) {
 			q.downloads[item.Media.ID] = download
 			q.Unlock()
 
-			q.sendQueueUpdate()
-			progressChan, doneChan, err := sources.GetVideo(media)
+			progressChan, doneChan, err := source.DownloadMedia(media)
 			if err != nil {
-				logrus.Error("Error when getting sources:")
-				logrus.Error(err)
+				logrus.Errorf("error when downloading media: %v", err)
 				return
 			}
 
