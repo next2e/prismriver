@@ -1,27 +1,46 @@
 package player
 
 import (
-	"gitlab.com/ttpcodes/prismriver/internal/app/player"
 	"net/http"
+	"strconv"
+
+	"github.com/sirupsen/logrus"
+
+	"gitlab.com/ttpcodes/prismriver/internal/app/player"
 )
 
 // UpdateHandler handles requests for changes to the Player, such as calling "Be Quiet!" or modifying the volume.
 func UpdateHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		logrus.Warnf("error parsing form inputs: %v", err)
+		return
+	}
 	quiet := r.Form.Get("quiet")
 	if len(quiet) > 0 {
 		queue := player.GetQueue()
 		queue.BeQuiet()
 		return
 	}
+	seek := r.Form.Get("seek")
+	if len(seek) > 0 {
+		nanoseconds, err := strconv.Atoi(seek)
+		if err != nil {
+			logrus.Warnf("error parsing seek time: %v", err)
+		} else {
+			playerInstance := player.GetPlayer()
+			if err := playerInstance.Seek(nanoseconds); err != nil {
+				logrus.Errorf("could not seek player: %v", err)
+			}
+		}
+	}
 	volume := r.Form.Get("volume")
 	if len(volume) > 0 {
-		player := player.GetPlayer()
+		playerInstance := player.GetPlayer()
 		switch volume {
 		case "up":
-			player.UpVolume()
+			playerInstance.UpVolume()
 		case "down":
-			player.DownVolume()
+			playerInstance.DownVolume()
 		}
 	}
 }

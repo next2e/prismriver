@@ -17,7 +17,9 @@
         <span>{{ volume }}</span>
         <button id="volup" class="hvr-bounce-to-right" @click="volUp"><span class="glyphicon glyphicon-volume-up"></span></button>
         <div style="display: flex; width: 100%; align-items: center;">
-          <input id="time" type="range" :min="0" :max="totalTime / 1000" :value="currentTime / totalTime * totalTime / 1000" style="width: auto; flex-grow: 2;">
+          <input id="time" type="range" :min="0" :max="totalTime" v-model.number="currentTime"
+                 style="width: auto; flex-grow: 2;" @mousedown="seeking = true" @mouseup="seeking = false"
+                 @change="seek">
           <span style="margin-left: 15px;">{{ parseTime(currentTime / 1000) +  ' / ' + parseTime(totalTime / 1000) }}</span>
         </div>
       </p>
@@ -32,6 +34,7 @@
   @Component
   export default class Player extends Vue {
     currentTime = 0
+    seeking = false
     socket: WebSocket | undefined
     state = 0
     totalTime = 0
@@ -76,7 +79,7 @@
     mounted () {
       this.connectWS()
       setInterval(() => {
-        if (this.state === 1) {
+        if (this.state === 1 && !this.seeking) {
           this.currentTime += 1000
         }
       }, 1000)
@@ -91,6 +94,18 @@
     @Watch('ws')
     onWSChanged(state: number) {
       this.$emit('update:ws', state)
+    }
+
+    seek (event: Event) {
+      if (this.state !== 1) {
+        return
+      }
+      const params = new URLSearchParams()
+      params.set('seek', (event.target as any).value)
+      fetch('player', {
+        body: params,
+        method: 'PUT'
+      })
     }
 
     skip (event: Event) {

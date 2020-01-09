@@ -2,13 +2,16 @@ package player
 
 import (
 	"encoding/json"
-	"github.com/adrg/libvlc-go"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
+	"errors"
 	"path"
 	"sync"
 	"time"
+
+	"github.com/adrg/libvlc-go"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
+
+	"gitlab.com/ttpcodes/prismriver/internal/app/constants"
 )
 
 var playerInstance *Player
@@ -193,6 +196,21 @@ func (p *Player) Play(item *QueueItem) error {
 		return err
 	}
 
+	eventManager, err := p.player.EventManager()
+	if err != nil {
+		logrus.Errorf("error retrieving vlc EventManager: %v", err)
+		return err
+	}
+
+	eventID, err := eventManager.Attach(vlc.MediaPlayerEndReached, func(event vlc.Event, userData interface{}) {
+		p.doneChan <- true
+	}, nil)
+	if err != nil {
+		logrus.Errorf("error registering MediaPlayerEndReached event: %v", err)
+		return err
+	}
+	defer eventManager.Detach(eventID)
+
 	time.Sleep(1 * time.Second)
 	length, err := p.player.MediaLength()
 	if err != nil || length == 0 {
@@ -203,8 +221,6 @@ func (p *Player) Play(item *QueueItem) error {
 
 	select {
 	case <-p.doneChan:
-		break
-	case <-time.After(time.Duration(length) * time.Millisecond):
 		break
 	}
 	p.State = STOPPED
@@ -251,6 +267,17 @@ func (p *Player) DownVolume() {
 	}
 	p.Volume -= 5
 	p.sendPlayerUpdate()
+}
+
+// Seek sets the player to a certain time.
+func (p *Player) Seek(milliseconds int) error {
+	if p.State != PLAYING {
+		return errors.New("cannot seek player that isn't playing")
+	}
+	if err := p.player.SetMediaTime(milliseconds); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (p Player) sendPlayerUpdate() {
