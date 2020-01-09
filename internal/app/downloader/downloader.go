@@ -11,6 +11,7 @@ import (
 )
 
 var sourceList = map[string]Source{
+	"soundcloud": sources.SoundCloud{},
 	"youtube":    sources.YouTube{},
 }
 
