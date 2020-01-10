@@ -32,3 +32,5 @@ require (
 	gopkg.in/ini.v1 v1.51.1 // indirect
 	gopkg.in/yaml.v2 v2.2.7
 )
+
+replace github.com/xfrr/goffmpeg => github.com/ttpcodes/goffmpeg v0.0.0-20200110192638-089dcbcc69a5

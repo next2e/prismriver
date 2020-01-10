@@ -151,6 +151,8 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/subosito/gotenv v1.2.0 h1:Slr1R9HxAlEKefgq5jn9U+DnETlIUa6HfgEzj0g5d7s=
 github.com/subosito/gotenv v1.2.0/go.mod h1:N0PQaV/YGNqwC0u51sEeR/aUtSLEXKX9iv69rRypqCw=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
+github.com/ttpcodes/goffmpeg v0.0.0-20200110192638-089dcbcc69a5 h1:IymPhqRflm75pRQljhYpxoWau5ydC14YL9ByhsITmUA=
+github.com/ttpcodes/goffmpeg v0.0.0-20200110192638-089dcbcc69a5/go.mod h1:ratjbZGuYy4vWjVx4pk0OaYRMnpHZZYwAAgNbfygZgw=
 github.com/ugorji/go v1.1.4/go.mod h1:uQMGLiO92mf5W77hV/PUCpI3pbzQx3CRekS0kk+RGrc=
 github.com/xfrr/goffmpeg v0.0.0-20180730065604-00c255eb2d5a h1:gVn8wRdwqlvaV5riyQ3+vpdBT///J6zHxceW5Bx9oas=
 github.com/xfrr/goffmpeg v0.0.0-20180730065604-00c255eb2d5a/go.mod h1:mL+qPvJWwu9An5a66+HyEJ7X7iEUSI09zX/Xl67XRXs=
