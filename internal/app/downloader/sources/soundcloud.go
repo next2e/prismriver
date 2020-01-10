@@ -45,6 +45,7 @@ func (s SoundCloud) DownloadMedia(media db.Media) (chan float64, chan error, err
 			callDone(result.Err)
 			return
 		}
+		progressChan <- 50
 		logrus.Debug("downloaded youtube-dl file")
 
 		dataDir := viper.GetString(constants.DATA)
