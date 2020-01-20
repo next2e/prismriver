@@ -1,0 +1,10 @@
+[Unit]
+Description=A revamped communal music player.
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/prismriver
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
