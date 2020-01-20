@@ -35,6 +35,11 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	shuffle := r.Form.Get("shuffle")
+	if len(shuffle) > 0 {
+		queue.Shuffle()
+	}
+
 	volume := r.Form.Get("volume")
 	if len(volume) > 0 {
 		playerInstance := player.GetPlayer()

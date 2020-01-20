@@ -23,7 +23,9 @@
     <player :item="queue[0]" @update:ws="playerWS = $event"></player>
 
     <div class="component">
-      <p class="title"> Current queue </p>
+      <p class="title">
+        Current queue <button class="select-song" @click="shuffle"><span class="glyphicon glyphicon-random"></span></button>
+      </p>
       <transition-group id="queue" class="nomargin" name="queue" tag="ul">
         <queue-item class="queue-item" v-for="(item, index) in queue" :key="item.media.Title" v-if="index > 0" :index="index" :item="item" :disableup="index === 1" :disabledown="index === queue.length - 1"></queue-item>
       </transition-group>
@@ -75,6 +77,15 @@
           this.connectWS()
         }
       }, 5000)
+    }
+
+    shuffle () {
+      const params = new URLSearchParams()
+      params.set('shuffle', 'true')
+      fetch('player', {
+        body: params,
+        method: 'PUT'
+      })
     }
 
     state () {

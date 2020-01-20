@@ -2,6 +2,7 @@ package player
 
 import (
 	"encoding/json"
+	"math/rand"
 	"os"
 	"path"
 	"sync"
@@ -263,4 +264,15 @@ func (q QueueItem) Progress() (bool, int) {
 		return false, 100
 	}
 	return true, download.progress
+}
+
+// Shuffle performs a shuffle on the items in the Queue.
+func (q *Queue) Shuffle() {
+	// Offset by one since we don't want to modify the currently playing item.
+	q.Lock()
+	rand.Shuffle(len(q.items)-1, func(i, j int) {
+		q.items[i+1], q.items[j+1] = q.items[j+1], q.items[i+1]
+	})
+	q.Unlock()
+	q.sendQueueUpdate()
 }
