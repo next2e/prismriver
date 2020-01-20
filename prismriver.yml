@@ -18,8 +18,14 @@
 ## DB_USER specifies the database connection user.
 # DB_USER: prismriver
 
+## DOWNLOAD_FORMAT specifies which format to use for downloading media.
+# DOWNLOAD_FORMAT: bestvideo+bestaudio/best
+
 ##  VERBOSITY specifies the logging verbosity.
 # VERBOSITY: info
+
+# VIDEO_DOWNLOAD_FORMAT specifies which format to use for downloading videos.
+# VIDEO_DOWNLOAD_FORMAT: bestvideo+bestaudio/best
 
 ## VIDEO_TRANSCODING specifies whether or not to enable video transcoding.
 # VIDEO_TRANSCODING: true

@@ -14,6 +14,8 @@ const (
 	DBPORT = "DB_Port"
 	// DBUSER (used as DB_USER) specifies the database connection user.
 	DBUSER = "DB_User"
+	// DOWNLOADFORMAT (ussed as DOWNLOAD_FORMAT) specifies which format to use for downloading media.
+	DOWNLOADFORMAT = "Download_Format"
 	// VERBOSITY (used as VERBOSITY) specifies the logging verbosity.
 	VERBOSITY = "Verbosity"
 	// VIDEOTRANSCODING (used as VIDEO_TRANSCODING) specifies whether or not to enable video transcoding.

@@ -30,6 +30,9 @@ func (s SoundCloud) DownloadMedia(media db.Media) (chan float64, chan error, err
 			close(doneChan)
 		}
 		downloader := youtubedl.NewDownloader("soundcloud.com/" + media.ID)
+
+		format := viper.GetString(constants.DOWNLOADFORMAT)
+		downloader.Format(format)
 		downloader.Output("/tmp/" + youtubedl.ID)
 		eventChan, closeChan, err := downloader.RunProgress()
 		if err != nil {

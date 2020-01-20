@@ -25,6 +25,7 @@ func main() {
 	viper.SetDefault(constants.DBPASSWORD, "prismriver")
 	viper.SetDefault(constants.DBPORT, "5432")
 	viper.SetDefault(constants.DBUSER, "prismriver")
+	viper.SetDefault(constants.DOWNLOADFORMAT, "bestvideo+bestaudio/best")
 	viper.SetDefault(constants.VERBOSITY, "info")
 	viper.SetDefault(constants.VIDEOTRANSCODING, true)
 
@@ -34,6 +35,7 @@ func main() {
 		constants.DBPASSWORD,
 		constants.DBPORT,
 		constants.DBUSER,
+		constants.DOWNLOADFORMAT,
 		constants.VERBOSITY,
 		constants.VIDEOTRANSCODING,
 	}

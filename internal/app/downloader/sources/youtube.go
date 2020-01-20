@@ -31,6 +31,9 @@ func (y YouTube) DownloadMedia(media db.Media) (chan float64, chan error, error)
 			close(doneChan)
 		}
 		downloader := youtubedl.NewDownloader(media.ID)
+
+		format := viper.GetString(constants.DOWNLOADFORMAT)
+		downloader.Format(format)
 		downloader.Output("/tmp/" + youtubedl.ID)
 		eventChan, closeChan, err := downloader.RunProgress()
 		if err != nil {
