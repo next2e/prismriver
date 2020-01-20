@@ -15,24 +15,26 @@ func UpdateHandler(w http.ResponseWriter, r *http.Request) {
 		logrus.Warnf("error parsing form inputs: %v", err)
 		return
 	}
+	playerInstance := player.GetPlayer()
+	queue := player.GetQueue()
+
 	quiet := r.Form.Get("quiet")
 	if len(quiet) > 0 {
-		queue := player.GetQueue()
 		queue.BeQuiet()
-		return
 	}
+
 	seek := r.Form.Get("seek")
 	if len(seek) > 0 {
 		nanoseconds, err := strconv.Atoi(seek)
 		if err != nil {
 			logrus.Warnf("error parsing seek time: %v", err)
 		} else {
-			playerInstance := player.GetPlayer()
 			if err := playerInstance.Seek(nanoseconds); err != nil {
 				logrus.Errorf("could not seek player: %v", err)
 			}
 		}
 	}
+
 	volume := r.Form.Get("volume")
 	if len(volume) > 0 {
 		playerInstance := player.GetPlayer()
