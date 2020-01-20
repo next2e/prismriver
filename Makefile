@@ -4,9 +4,9 @@ build:
 	fileb0x assets.json
 	go build cmd/prismriver/prismriver.go
 
-build-dev: frontend-dev validate build
+build-dev: frontend-dev build validate
 
-build-prod: frontend validate build
+build-prod: frontend build validate
 
 deps:
 	cd web && yarn
@@ -29,6 +29,5 @@ run: build-prod
 
 validate:
 	./scripts/validate.sh
-	go build -race cmd/prismriver/prismriver.go
 
 .PHONY: all build deps frontend install run
