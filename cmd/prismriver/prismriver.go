@@ -58,7 +58,7 @@ func main() {
 	}
 	logrus.SetLevel(level)
 	dataDir := viper.GetString(constants.DATA)
-	if err := os.MkdirAll(path.Join(dataDir, "internal"), os.ModeDir); err != nil {
+	if err := os.MkdirAll(path.Join(dataDir, "internal"), os.ModeDir|0755); err != nil {
 		logrus.Fatalf("error creating data directories: %v", err)
 	}
 

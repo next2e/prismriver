@@ -19,7 +19,7 @@ var sourceList = map[string]Source{
 func InitializeDownloader() error {
 	for name := range sourceList {
 		dataDir := viper.GetString(constants.DATA)
-		if err := os.MkdirAll(path.Join(dataDir, name), os.ModeDir); err != nil {
+		if err := os.MkdirAll(path.Join(dataDir, name), os.ModeDir|0755); err != nil {
 			return err
 		}
 	}

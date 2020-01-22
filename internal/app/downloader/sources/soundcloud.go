@@ -54,7 +54,7 @@ func (s SoundCloud) DownloadMedia(media db.Media) (chan float64, chan error, err
 		dataDir := viper.GetString(constants.DATA)
 		trans := new(transcoder.Transcoder)
 		filePath := path.Join(dataDir, "soundcloud", media.ID+".opus")
-		if err := os.MkdirAll(path.Dir(filePath), os.ModeDir); err != nil {
+		if err := os.MkdirAll(path.Dir(filePath), os.ModeDir|0755); err != nil {
 			callDone(err)
 			return
 		}
