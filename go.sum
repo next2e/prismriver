@@ -173,6 +173,8 @@ gitlab.com/ttpcodes/youtube-dl-go v0.0.0-20200109220955-c8a44951e809 h1:cYeIKlgm
 gitlab.com/ttpcodes/youtube-dl-go v0.0.0-20200109220955-c8a44951e809/go.mod h1:dXBtJ0w4S3sedD1nMZg8SRjNfZHxWh05HomsF+4APLM=
 gitlab.com/ttpcodes/youtube-dl-go v0.0.0-20200122072320-c1e4ae6e5050 h1:gAg+IZy0wskX07I1Hja7+9I+AHH2hbb/oGT8VxgrK3w=
 gitlab.com/ttpcodes/youtube-dl-go v0.0.0-20200122072320-c1e4ae6e5050/go.mod h1:TS/QQ9Y4aPePZALqqvNQuXORGdUdCIf2Ux2qnSi3fdk=
+gitlab.com/ttpcodes/youtube-dl-go v0.0.0-20200122185457-d23230135b2c h1:QwrYhDSqTybb7+W7hcGz6ufhmkFkiW5U/XAYYvITGF0=
+gitlab.com/ttpcodes/youtube-dl-go v0.0.0-20200122185457-d23230135b2c/go.mod h1:TS/QQ9Y4aPePZALqqvNQuXORGdUdCIf2Ux2qnSi3fdk=
 go.etcd.io/bbolt v1.3.2/go.mod h1:IbVyRI1SCnLcuJnV2u8VeU0CEYM7e686BmAb1XKL+uU=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
 go.uber.org/multierr v1.1.0/go.mod h1:wR5kodmAFQ0UK8QlbwjlSNy0Z68gJhDJUG5sjR94q/0=
