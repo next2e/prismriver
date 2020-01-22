@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Heavily borrowed from the make scripts used by https://github.com/rancher.
 set -e
 
